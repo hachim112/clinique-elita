@@ -2,7 +2,6 @@
 from .models import Cart, ContactMessage
 
 def cart_count(request):
-    from main.models import Cart
     count = 0
     if request.user.is_authenticated:
         try:
@@ -11,9 +10,10 @@ def cart_count(request):
         except Cart.DoesNotExist:
             count = 0
     else:
-        if request.session.session_key:
+        session = getattr(request, 'session', None)
+        if session and hasattr(session, 'session_key') and session.session_key:
             try:
-                cart = Cart.objects.get(session_key=request.session.session_key, user__isnull=True)
+                cart = Cart.objects.get(session_key=session.session_key)
                 count = cart.item_count
             except Cart.DoesNotExist:
                 count = 0

@@ -6,8 +6,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-me-in-production')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = ["*"]
-
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "clinique-elita.vercel.app",
+    "clinique-elita-bnd518xeb-hachim112s-projects.vercel.app",
+]
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

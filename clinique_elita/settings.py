@@ -4,13 +4,17 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-me-in-production')
-DEBUG =False
+SECRET_KEY = os.environ.get('SECRET_KEY') or os.environ.get('DJANGO_SECRET_KEY') or 'django-insecure-change-me-in-production'
+DEBUG = os.environ.get('DEBUG', 'False').lower() in ('1', 'true', 'yes')
 ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "clinique-elita.vercel.app",
-    "clinique-elita-bnd518xeb-hachim112s-projects.vercel.app",
+    host.strip()
+    for host in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,.vercel.app').split(',')
+    if host.strip()
+]
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://*.vercel.app').split(',')
+    if origin.strip()
 ]
 INSTALLED_APPS = [
     'django.contrib.admin',

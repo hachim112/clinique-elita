@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "src": "clinique_elita/wsgi.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "clinique_elita/wsgi.py"
+    }
+  ]
+}

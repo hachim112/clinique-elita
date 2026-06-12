@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %} - Services{% endblock %}
+{% block content %}
+<style>
+.service-hero {
+    background: linear-gradient(135deg, var(--dark-blue), var(--sky-blue));
+    color: white;
+    padding: 3rem 0;
+    text-align: center;
+    border-radius: 0 0 var(--radius) var(--radius);
+}
+.service-detail {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: center;
+    padding: 2rem 0;
+}
+.service-icon-big {
+    font-size: 6rem;
+    text-align: center;
+    color: var(--sky-blue);
+}
+@media (max-width: 768px) {
+    .service-detail { grid-template-columns: 1fr; }
+}
+</style>
+<div class="container">
+    <div class="service-hero">
+        <h1>Our Services</h1>
+        <p>Comprehensive veterinary care with advanced technology</p>
+    </div>
+    <div style="padding: 3rem 0;">
+        <div class="service-detail">
+            <div class="service-icon-big"><i class="fas fa-syringe"></i></div>
+            <div>
+                <h2>Vaccination</h2>
+                <p>Complete vaccination protocols for dogs, cats, birds, and exotic pets. We follow international standards to ensure your pets receive the best protection against preventable diseases.</p>
+            </div>
+        </div>
+    </div>
+    <div class="service-detail" style="padding: 2rem 0; border-top: 1px solid #eee;">
+        <div style="order:2;">
+            <h2>Surgery</h2>
+            <p>Advanced surgical procedures from routine spaying/neutering to complex orthopedic surgeries. Our modern operating rooms ensure the highest standards of safety and care.</p>
+        </div>
+        <div class="service-icon-big" style="order:1;"><i class="fas fa-hospital"></i></div>
+    </div>
+    <div class="service-detail" style="padding: 2rem 0; border-top: 1px solid #eee;">
+        <div class="service-icon-big"><i class="fas fa-cut"></i></div>
+        <div>
+            <h2>Grooming</h2>
+            <p>Professional grooming services including bathing, haircuts, nail trimming, and breed-specific styling. We use only premium products safe for your pet's skin and coat.</p>
+        </div>
+    </div>
+    <div class="service-detail" style="padding: 2rem 0; border-top: 1px solid #eee;">
+        <div style="order:2;">
+            <h2>Consultation</h2>
+            <p>Expert medical consultations for preventive care, nutritional advice, and behavioral issues. Our team is always ready to guide you through every stage of your pet's life.</p>
+        </div>
+        <div class="service-icon-big" style="order:1;"><i class="fas fa-stethoscope"></i></div>
+    </div>
+    <div class="service-detail" style="padding: 2rem 0; border-top: 1px solid #eee;">
+        <div class="service-icon-big"><i class="fas fa-microscope"></i></div>
+        <div>
+            <h2>Laboratory</h2>
+            <p>Modern on-site laboratory for blood tests, urinalysis, cytology, and microbiology. Quick and accurate results to help with fast diagnosis.</p>
+        </div>
+    </div>
+    <div class="service-detail" style="padding: 2rem 0; border-top: 1px solid #eee;">
+        <div style="ordering:2;">
+            <h2>Emergency Care</h2>
+            <p>24/7 emergency services for urgent medical situations. When your pet needs immediate attention, we're here to provide life-saving care.</p>
+        </div>
+        <div class="service-icon-big" style="order:1;"><i class="fas fa-ambulance"></i></div>
+    </div>
+</div>
+{% endblock %}

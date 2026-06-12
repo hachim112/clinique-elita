@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %} - Track Appointment{% endblock %}
+{% block content %}
+<style>
+.track-container { max-width: 600px; margin: 3rem auto; }
+.track-result {
+    background: white;
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+}
+.status-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+</style>
+<div class="container">
+    <div class="track-container">
+        <h1 class="section-title" style="font-size:1.8rem;">Track Your Appointment</h1>
+        <p class="section-subtitle">Enter your phone number and appointment ID to view details</p>
+        <div class="card" style="padding:2rem;">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" name="phone" required placeholder="+213 6XX XXX XXX" style="width:100%;padding:12px;border-radius:10px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                </div>
+                <div class="form-group">
+                    <label>Appointment ID</label>
+                    <input type="text" name="appointment_id" required placeholder="APT12345" style="width:100%;padding:12px;border-radius:10px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">Track Appointment</button>
+            </form>
+        </div>
+        {% if appointment %}
+        <div class="track-result" style="margin-top:2rem;">
+            <h3>Appointment Details</h3>
+            <div style="margin:1.5rem 0;">
+                <p><strong>Animal:</strong> {{ appointment.animal_name }}</p>
+                <p><strong>Type:</strong> {{ appointment.get_animal_type_display }}</p>
+                <p><i class="fas fa-calendar"></i> <strong>Date:</strong> {{ appointment.date|date:"M d, Y" }}</p>
+                <p><i class="fas fa-clock"></i> <strong>Time:</strong> {{ appointment.time|time:"H:i" }}</p>
+                <p><strong>Reason:</strong> {{ appointment.reason }}</p>
+                <p><strong>Status:</strong>
+                    <span class="status-badge"
+                        style="{% if appointment.status == 'pending' %}background:#fef3c7;color:#92400e;
+                        {% elif appointment.status == 'accepted' %}background:#d1fae5;color:#065f46;
+                        {% elif appointment.status == 'denied' %}background:#fee2e2;color:#991b1b;
+                        {% elif appointment.status == 'completed' %}background:#dbeafe;color:#1e40af;
+                        {% endif %}">
+                        {{ appointment.get_status_display }}
+                    </span>
+                </p>
+                <p><strong>Tracking ID:</strong> {{ appointment.tracking_id }}</p>
+                {% if appointment.notes %}
+                <p><strong>Notes:</strong> {{ appointment.notes }}</p>
+                {% endif %}
+            </div>
+            <a href="{% url 'appointments' %}" class="btn btn-outline btn-sm">Back to Appointments</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %} - 404 Not Found{% endblock %}
+{% block content %}
+<style>
+.error-container {
+    text-align: center;
+    padding: 6rem 2rem;
+}
+.error-code {
+    font-size: 10rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--dark-blue), var(--sky-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    animation: bounceIn 0.8s ease;
+}
+.error-msg { font-size: 1.5rem; color: var(--text-dark); margin: 1rem 0; }
+.error-sub { color: var(--text-light); margin-bottom: 2rem; }
+@keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+}
+</style>
+<div class="container">
+    <div class="error-container">
+        <div class="error-code">404</div>
+        <h2 class="error-msg">Page Not Found</h2>
+        <p class="error-sub">The page you're looking for doesn't exist or has been moved.</p>
+        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+            <a href="{% url 'home' %}" class="btn btn-primary"><i class="fas fa-home"></i> Back to Home</a>
+            <a href="{% url 'shop' %}" class="btn btn-outline"><i class="fas fa-shopping-bag"></i> Visit Shop</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

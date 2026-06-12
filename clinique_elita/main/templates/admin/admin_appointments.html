@@ -1,0 +1,131 @@
+{% extends 'admin/admin_base.html' %}
+{% block title %} - Manage Appointments{% endblock %}
+{% block admin_content %}
+<div class="page-header">
+    <div>
+        <h2>Manage Appointments</h2>
+        <p class="page-subtitle">View and manage all patient appointments</p>
+    </div>
+</div>
+<div class="filter-bar">
+    <a href="{% url 'admin_appointments' %}" class="btn {% if not status_filter %}btn-primary{% else %}btn-outline{% endif %} btn-sm">All</a>
+    <a href="{% url 'admin_appointments' %}?status=pending" class="btn {% if status_filter == 'pending' %}btn-warning{% else %}btn-outline{% endif %} btn-sm">⏳ Pending</a>
+    <a href="{% url 'admin_appointments' %}?status=accepted" class="btn {% if status_filter == 'accepted' %}btn-success{% else %}btn-outline{% endif %} btn-sm">✅ Accepted</a>
+    <a href="{% url 'admin_appointments' %}?status=completed" class="btn {% if status_filter == 'completed' %}btn-info{% else %}btn-outline{% endif %} btn-sm">🏁 Completed</a>
+    <a href="{% url 'admin_appointments' %}?status=denied" class="btn {% if status_filter == 'denied' %}btn-danger{% else %}btn-outline{% endif %} btn-sm">❌ Denied</a>
+</div>
+<div class="card card-p-0">
+    <div class="card-header">
+        <h3>All Appointments</h3>
+        <span style="color:var(--text-light);font-size:0.85rem;">{{ page_obj.paginator.count }} total</span>
+    </div>
+    <div style="overflow-x:auto;">
+    <table class="admin-table">
+<thead>
+             <tr><th>#ID</th><th>Tracking ID</th><th>Patient</th><th>Animal</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th></tr>
+         </thead>
+         <tbody>
+             {% for appt in page_obj %}
+             <tr>
+                 <td><strong style="color:var(--sky-blue);">#{{ appt.id }}</strong></td>
+                 <td><strong>{{ appt.tracking_id|default:"-" }}</strong></td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#e0f2fe,#bae6fd);display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:600;color:var(--sky-blue);flex-shrink:0;">
+                            {{ appt.user.get_full_name|default:appt.guest_name|first|upper|slice:":1" }}
+                        </div>
+                        <span>{{ appt.user.get_full_name|default:appt.guest_name|default:"-" }}</span>
+                    </div>
+                </td>
+                <td>{{ appt.animal_name }} <span style="color:var(--text-light);font-size:0.8rem;">({{ appt.get_animal_type_display }})</span></td>
+                <td><strong>{{ appt.date|date:"M d, Y" }}</strong></td>
+                <td>{{ appt.time|time:"H:i" }}</td>
+                <td>
+                    <span class="admin-badge
+                        {% if appt.status == 'pending' %}badge-warning
+                        {% elif appt.status == 'accepted' %}badge-success
+                        {% elif appt.status == 'denied' %}badge-danger
+                        {% else %}badge-info{% endif %}">
+                        {{ appt.get_status_display }}
+                    </span>
+                </td>
+                <td>
+                    <div class="actions-cell">
+                        {% if appt.status == 'pending' %}
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="appointment_id" value="{{ appt.id }}">
+                            <input type="hidden" name="action" value="accept">
+                            <button type="submit" class="btn btn-success btn-icon" title="Accept">✓</button>
+                        </form>
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="appointment_id" value="{{ appt.id }}">
+                            <input type="hidden" name="action" value="deny">
+                            <button type="submit" class="btn btn-danger btn-icon" title="Deny">✕</button>
+                        </form>
+                        {% endif %}
+                        {% if appt.status == 'accepted' %}
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="appointment_id" value="{{ appt.id }}">
+                            <input type="hidden" name="action" value="complete">
+                            <button type="submit" class="btn btn-primary btn-icon" title="Complete">🏁</button>
+                        </form>
+                        {% endif %}
+                        <button onclick="openEditModal({{ appt.id }}, '{{ appt.date }}', '{{ appt.time|time:'H:i' }}')" class="btn btn-warning btn-icon" title="Edit">✏️</button>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📅</div><h4>No appointments found</h4></div></td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+<div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}&status={{ status_filter }}">&laquo; Prev</a>
+    {% endif %}
+    <span class="current">{{ page_obj.number }}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}&status={{ status_filter }}">Next &raquo;</a>
+    {% endif %}
+</div>
+
+<div id="editModal" class="modal-overlay">
+    <div class="card" style="padding:2rem;max-width:420px;width:90%;">
+        <h3 style="margin-bottom:1.5rem;">✏️ Reschedule Appointment</h3>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="appointment_id" id="editApptId">
+            <input type="hidden" name="action" value="edit">
+            <div class="form-group">
+                <label>New Date</label>
+                <input type="date" name="new_date" id="editDate" required class="form-control">
+            </div>
+            <div class="form-group">
+                <label>New Time</label>
+                <input type="time" name="new_time" id="editTime" required class="form-control">
+            </div>
+            <div style="display:flex;gap:10px;margin-top:1.5rem;">
+                <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                <button type="button" onclick="closeEditModal()" class="btn btn-outline">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+function openEditModal(id, date, time) {
+    document.getElementById('editApptId').value = id;
+    document.getElementById('editDate').value = date;
+    document.getElementById('editTime').value = time;
+    document.getElementById('editModal').style.display = 'flex';
+}
+function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+document.getElementById('editModal').addEventListener('click', function(e) {
+    if (e.target === this) closeEditModal();
+});
+</script>
+{% endblock %}

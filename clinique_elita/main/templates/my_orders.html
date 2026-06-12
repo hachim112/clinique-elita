@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %} - My Orders{% endblock %}
+{% block content %}
+<style>
+.order-table { width: 100%; border-collapse: collapse; }
+.order-table th { text-align: left; padding: 12px; border-bottom: 2px solid #e5e7eb; }
+.order-table td { padding: 12px; border-bottom: 1px solid #f3f4f6; }
+@media (max-width: 768px) {
+    .order-table thead { display: none; }
+    .order-table tr { display: block; margin-bottom: 1rem; border: 1px solid #e5e7eb; border-radius: var(--radius-sm); padding: 1rem; }
+    .order-table td { display: flex; justify-content: space-between; }
+    .order-table td::before { content: attr(data-label); font-weight: 600; }
+}
+</style>
+<div class="container" style="padding-top: 3rem;">
+    <h1 class="section-title">My Orders</h1>
+    {% if page_obj %}
+    <div class="card" style="padding:0;overflow:hidden;">
+        <table class="order-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in page_obj %}
+                <tr>
+                    <td data-label="Order ID"><strong>#{{ order.order_id }}</strong></td>
+                    <td data-label="Date">{{ order.created_at|date:"M d, Y" }}</td>
+                    <td data-label="Status">
+                        <span class="badge
+                            {% if order.status == 'pending' %}badge-warning
+                            {% elif order.status == 'confirmed' %}badge-success
+                            {% elif order.status == 'shipping' %}badge-warning
+                            {% elif order.status == 'delivered' %}badge-success
+                            {% elif order.status == 'cancelled' %}badge-danger
+                            {% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </td>
+                    <td data-label="Total">{{ order.total_price }} DZD</td>
+                    <td data-label="Action">
+                        <a href="{% url 'order_tracking' order.id %}" class="btn btn-outline btn-sm">Track</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+        {% endif %}
+        <span class="current">{{ page_obj.number }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="card" style="text-align:center;padding:4rem;color:var(--text-light);">
+        <p style="font-size:1.1rem;">No orders yet. Start shopping!</p>
+        <a href="{% url 'shop' %}" class="btn btn-primary" style="margin-top:1rem;">Browse Shop</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

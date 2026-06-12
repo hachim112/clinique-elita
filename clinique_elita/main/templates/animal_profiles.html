@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block title %} - Animal Profiles{% endblock %}
+{% block content %}
+<style>
+.animal-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+}
+.animal-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sky-blue), var(--dark-blue));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    flex-shrink: 0;
+}
+.animal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+</style>
+<div class="container" style="padding-top: 3rem;">
+    <h1 class="section-title">My Animals</h1>
+    <div class="card" style="margin-bottom:2rem;padding:2rem;">
+        <h3 style="margin-bottom:1rem;">Add New Animal</h3>
+        <form method="post">
+            {% csrf_token %}
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                </div>
+                <div class="form-group">
+                    <label>Species</label>
+                    <select name="species" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                        <option value="dog">Dog</option>
+                        <option value="cat">Cat</option>
+                        <option value="bird">Bird</option>
+                        <option value="rabbit">Rabbit</option>
+                        <option value="exotic">Exotic Animal</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Breed</label>
+                    <input type="text" name="breed" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                </div>
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select name="gender" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                        <option value="">Select</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Age</label>
+                    <input type="text" name="age" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                </div>
+                <div class="form-group">
+                    <label>Weight</label>
+                    <input type="text" name="weight" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                </div>
+                <div class="form-group" style="grid-column:1/-1;">
+                    <label>Vaccination History</label>
+                    <textarea name="vaccination_history" rows="2" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);"></textarea>
+                </div>
+                <div class="form-group" style="grid-column:1/-1;">
+                    <label>Medical Notes</label>
+                    <textarea name="medical_notes" rows="2" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);"></textarea>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Add Animal</button>
+        </form>
+    </div>
+    <div class="animal-grid">
+        {% for animal in animals %}
+        <div class="card animal-card">
+            <div class="animal-avatar">{{ animal.species|first|upper }}</div>
+            <div style="flex-grow:1;">
+                <h4>{{ animal.name }}</h4>
+                <p style="color:var(--text-light);font-size:0.9rem;">
+                    {{ animal.get_species_display }} {% if animal.breed %}| {{ animal.breed }}{% endif %}
+                    {% if animal.age %} | {{ animal.age }}{% endif %}
+                </p>
+                {% if animal.gender %}
+                <p style="font-size:0.85rem;">{{ animal.get_gender_display }}</p>
+                {% endif %}
+            </div>
+            <div style="display:flex;gap:8px;">
+                <a href="{% url 'edit_animal_profile' animal.id %}" class="btn btn-outline btn-sm">Edit</a>
+                <a href="{% url 'delete_animal_profile' animal.id %}" class="btn btn-outline btn-sm btn-danger" onclick="return confirm('Delete this profile?')">Delete</a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="card" style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-light);">
+            <p style="font-size:1.1rem;">No animal profiles yet. Add your first pet above!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

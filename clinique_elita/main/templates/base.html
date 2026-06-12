@@ -1,0 +1,618 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinique Elita{% block title %}{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --dark-blue: #123458;
+            --sky-blue: #4EA8DE;
+            --white: #FFFFFF;
+            --light-gray: #F5F7FA;
+            --text-dark: #1a1a2e;
+            --text-light: #6b7280;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-hover: 0 8px 30px rgba(0,0,0,0.15);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --transition: all 0.3s ease;
+        }
+        [data-theme="dark"] {
+            --white: #1a1a2e;
+            --light-gray: #0f0f1a;
+            --text-dark: #e5e7eb;
+            --text-light: #9ca3af;
+            --shadow: 0 4px 20px rgba(0,0,0,0.3);
+            --shadow-hover: 0 8px 30px rgba(0,0,0,0.5);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light-gray);
+            color: var(--text-dark);
+            line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
+        }
+        a { text-decoration: none; color: inherit; }
+        img { max-width: 100%; display: block; }
+
+        /* ========== NAVBAR ========== */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding: 0 2rem;
+            transition: background 0.3s;
+        }
+        [data-theme="dark"] .navbar {
+            background: rgba(26,26,46,0.9);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--dark-blue);
+            white-space: nowrap;
+        }
+        [data-theme="dark"] .nav-brand { color: var(--sky-blue); }
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--dark-blue), var(--sky-blue));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            overflow: hidden;
+        }
+        .brand-icon img {
+            width: 38px;
+            height: 38px;
+            object-fit: contain;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+        .nav-links a {
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            position: relative;
+            padding: 6px 0;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover, .nav-links a.active { color: var(--sky-blue); }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--sky-blue);
+            transition: width 0.3s;
+            border-radius: 2px;
+        }
+        .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+        .nav-auth { display: flex; gap: 10px; align-items: center; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--dark-blue), var(--sky-blue));
+            color: white;
+            box-shadow: 0 4px 15px rgba(78,168,222,0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(78,168,222,0.4);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--sky-blue);
+            border: 2px solid var(--sky-blue);
+        }
+        .btn-outline:hover {
+            background: var(--sky-blue);
+            color: white;
+            transform: translateY(-2px);
+        }
+        .btn-sm { padding: 7px 16px; font-size: 0.8rem; }
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-danger:hover { background: #dc2626; transform: translateY(-2px); }
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        .btn-success:hover { background: #059669; transform: translateY(-2px); }
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+        .btn-warning:hover { background: #d97706; }
+
+        /* Dark mode toggle */
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3rem;
+            padding: 6px;
+            border-radius: 50%;
+            transition: background 0.3s;
+            color: var(--text-dark);
+        }
+        .theme-toggle:hover { background: var(--light-gray); }
+
+        /* Hamburger */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 5px;
+            z-index: 1001;
+            background: none;
+            border: none;
+        }
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: var(--text-dark);
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 6px); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -6px); }
+
+        /* Mobile nav */
+        @media (max-width: 968px) {
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 280px;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                padding: 80px 2rem 2rem;
+                gap: 1.5rem;
+                box-shadow: var(--shadow-hover);
+                transition: right 0.3s ease;
+                z-index: 999;
+            }
+            .nav-links.active { right: 0; }
+            .hamburger { display: flex; }
+            .nav-auth { display: none; }
+            .nav-links .auth-mobile { display: block; margin-top: 1rem; }
+        }
+        @media (min-width: 969px) {
+            .nav-links .auth-mobile { display: none; }
+        }
+
+        /* Overlay */
+        .nav-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+        }
+        .nav-overlay.active { display: block; }
+
+        /* ========== MAIN CONTENT ========== */
+        .main-content {
+            min-height: calc(100vh - 70px - 300px);
+        }
+
+        /* ========== FOOTER ========== */
+        .footer {
+            background: var(--dark-blue);
+            color: rgba(255,255,255,0.8);
+            padding: 3rem 2rem 1rem;
+            margin-top: 4rem;
+        }
+        .footer-grid {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem;
+        }
+        .footer h4 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        .footer p, .footer li {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .footer ul { list-style: none; }
+        .footer a { color: rgba(255,255,255,0.7); transition: color 0.3s; }
+        .footer a:hover { color: var(--sky-blue); }
+        .social-icons { display: flex; gap: 12px; margin-top: 0.5rem; }
+        .social-icons a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: var(--transition);
+        }
+        .social-icons a:hover {
+            background: var(--sky-blue);
+            color: white;
+            transform: translateY(-3px);
+        }
+        .footer-bottom {
+            max-width: 1280px;
+            margin: 2rem auto 0;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            font-size: 0.85rem;
+        }
+        .maps-placeholder {
+            width: 100%;
+            height: 150px;
+            background: rgba(255,255,255,0.05);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.9rem;
+        }
+
+        /* ========== TOASTS ========== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            padding: 14px 22px;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-weight: 500;
+            font-size: 0.9rem;
+            animation: slideIn 0.3s ease;
+            box-shadow: var(--shadow-hover);
+            max-width: 400px;
+        }
+        .toast-success { background: #10b981; }
+        .toast-error { background: #ef4444; }
+        .toast-info { background: var(--sky-blue); }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            to { opacity: 0; transform: translateX(100%); }
+        }
+
+        /* ========== BACK TO TOP ========== */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--dark-blue), var(--sky-blue));
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+            z-index: 900;
+            box-shadow: 0 4px 15px rgba(78,168,222,0.3);
+        }
+        .back-to-top.visible { opacity: 1; transform: translateY(0); }
+        .back-to-top:hover { transform: translateY(-3px); }
+
+        /* ========== UTILITY ========== */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        .section { padding: 4rem 0; }
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark-blue);
+        }
+        [data-theme="dark"] .section-title { color: white; }
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 3rem;
+        }
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+        .glass {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        [data-theme="dark"] .glass {
+            background: rgba(26,26,46,0.7);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* ========== MESSAGES ========== */
+        .messages {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        .messages li {
+            padding: 12px 20px;
+            margin-bottom: 10px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+        }
+        .messages .alert-success { background: #d1fae5; color: #065f46; }
+        .messages .alert-error { background: #fee2e2; color: #991b1b; }
+        .messages .alert-info { background: #dbeafe; color: #1e40af; }
+        [data-theme="dark"] .messages .alert-success { background: #065f46; color: #d1fae5; }
+        [data-theme="dark"] .messages .alert-error { background: #991b1b; color: #fee2e2; }
+        [data-theme="dark"] .messages .alert-info { background: #1e40af; color: #dbeafe; }
+
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{% url 'home' %}" class="nav-brand">
+                <div class="brand-icon"><img src="{% static 'images/elita-logo.png' %}" alt="Clinique Elita"></div>
+                <span>Clinique Elita</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'services' %}">Services</a></li>
+                <li><a href="{% url 'appointments' %}">Appointments</a></li>
+                <li><a href="{% url 'shop' %}">Pet Shop</a></li>
+                <li><a href="{% url 'about' %}">About</a></li>
+                <li><a href="{% url 'contact' %}">Contact</a></li>
+                {% if user.is_authenticated %}
+                {% if user.is_staff or user.is_superuser %}
+                <li class="auth-mobile"><a href="{% url 'admin_dashboard' %}"><i class="fas fa-cog"></i> Admin Panel</a></li>
+                {% else %}
+                <li class="auth-mobile"><a href="{% url 'appointments' %}">My Appointments</a></li>
+                <li class="auth-mobile"><a href="{% url 'my_orders' %}">My Orders</a></li>
+                <li class="auth-mobile"><a href="{% url 'profile' %}">Profile</a></li>
+                {% endif %}
+                <li class="auth-mobile"><a href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                <li class="auth-mobile"><a href="{% url 'login' %}">Login</a></li>
+                <li class="auth-mobile"><a href="{% url 'register' %}">Register</a></li>
+                {% endif %}
+            </ul>
+            <div class="nav-auth">
+                {% if user.is_authenticated %}
+                {% if user.is_staff or user.is_superuser %}
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-outline btn-sm">🔧 Admin Panel</a>
+                {% else %}
+                <a href="{% url 'appointments' %}" class="btn btn-outline btn-sm">My Appointments</a>
+                <a href="{% url 'my_orders' %}" class="btn btn-outline btn-sm">My Orders</a>
+                <a href="{% url 'profile' %}" class="btn btn-outline btn-sm">Profile</a>
+                {% endif %}
+                <button class="theme-toggle" id="themeToggle" title="Toggle theme"><i class="fas fa-moon" id="themeIcon"></i></button>
+                <a href="{% url 'logout' %}" class="btn btn-outline btn-sm">Logout</a>
+                {% else %}
+                <button class="theme-toggle" id="themeToggle" title="Toggle theme"><i class="fas fa-moon" id="themeIcon"></i></button>
+                <a href="{% url 'login' %}" class="btn btn-outline btn-sm">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-primary btn-sm">Register</a>
+                {% endif %}
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <ul class="messages" style="margin-top: 1rem;">
+        {% for message in messages %}
+        <li class="alert-{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div>
+                <h4>Clinique Elita</h4>
+                <p>Professional veterinary care for your beloved pets. We provide the best medical services with love and expertise.</p>
+                <div class="social-icons">
+                    <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div>
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'services' %}">Services</a></li>
+                    <li><a href="{% url 'appointments' %}">Appointments</a></li>
+                    <li><a href="{% url 'shop' %}">Pet Shop</a></li>
+                    <li><a href="{% url 'about' %}">About</a></li>
+                    <li><a href="{% url 'contact' %}">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Contact Info</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Algiers, Algeria</p>
+                <p><i class="fas fa-phone"></i> +213 21 123 456</p>
+                <p><i class="fas fa-envelope"></i> contact@cliniqueelita.dz</p>
+                <p><i class="fas fa-clock"></i> Mon-Sat: 08:00 - 17:00</p>
+            </div>
+            <div>
+                <h4>Our Location</h4>
+                <div class="maps-placeholder"><i class="fas fa-map"></i> Google Maps</div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; {% now "Y" %} Clinique Elita. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" title="Back to top"><i class="fas fa-arrow-up"></i></button>
+
+    <!-- Inline JS -->
+    <script>
+        // Hamburger menu
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        const overlay = document.getElementById('navOverlay');
+        function toggleMenu() {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+        hamburger.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (navLinks.classList.contains('active')) toggleMenu();
+            });
+        });
+
+        // Dark mode
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+        });
+
+        // Back to top
+        const backBtn = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            backBtn.classList.toggle('visible', window.scrollY > 300);
+        });
+        backBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Toast helper
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = msg;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href === '#') return;
+                const target = document.querySelector(href);
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

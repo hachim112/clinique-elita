@@ -1,0 +1,101 @@
+{% extends 'admin/admin_base.html' %}
+{% block title %} - Manage Orders{% endblock %}
+{% block admin_content %}
+<div class="page-header">
+    <div>
+        <h2>Manage Orders</h2>
+        <p class="page-subtitle">Track and process customer orders</p>
+    </div>
+</div>
+<div class="filter-bar">
+    <a href="{% url 'admin_orders' %}" class="btn {% if not status_filter %}btn-primary{% else %}btn-outline{% endif %} btn-sm">All</a>
+    <a href="{% url 'admin_orders' %}?status=pending" class="btn {% if status_filter == 'pending' %}btn-warning{% else %}btn-outline{% endif %} btn-sm">⏳ Pending</a>
+    <a href="{% url 'admin_orders' %}?status=confirmed" class="btn {% if status_filter == 'confirmed' %}btn-success{% else %}btn-outline{% endif %} btn-sm">✅ Confirmed</a>
+    <a href="{% url 'admin_orders' %}?status=shipping" class="btn {% if status_filter == 'shipping' %}btn-info{% else %}btn-outline{% endif %} btn-sm">🚚 Shipping</a>
+    <a href="{% url 'admin_orders' %}?status=delivered" class="btn {% if status_filter == 'delivered' %}btn-success{% else %}btn-outline{% endif %} btn-sm">📦 Delivered</a>
+    <a href="{% url 'admin_orders' %}?status=cancelled" class="btn {% if status_filter == 'cancelled' %}btn-danger{% else %}btn-outline{% endif %} btn-sm">❌ Cancelled</a>
+</div>
+<div class="card card-p-0">
+    <div class="card-header">
+        <h3>All Orders</h3>
+        <span style="color:var(--text-light);font-size:0.85rem;">{{ page_obj.paginator.count }} orders</span>
+    </div>
+    <div style="overflow-x:auto;">
+    <table class="admin-table">
+        <thead><tr><th>Order ID</th><th>Customer</th><th>Phone</th><th>Wilaya</th><th>Total</th><th>Items</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody>
+            {% for order in page_obj %}
+            <tr>
+                <td><strong style="color:var(--sky-blue);">#{{ order.order_id }}</strong></td>
+                <td>{{ order.guest_name|default:order.user.get_full_name|default:"Guest" }}</td>
+                <td style="font-size:0.85rem;">{{ order.guest_phone|default:"-" }}</td>
+                <td>{{ order.wilaya }}</td>
+                <td><strong>{{ order.total_price }} DZD</strong></td>
+                <td style="text-align:center;">{{ order.item_count|default:"-" }}</td>
+                <td>
+                    <span class="admin-badge
+                        {% if order.status == 'pending' %}badge-warning
+                        {% elif order.status == 'confirmed' %}badge-success
+                        {% elif order.status == 'shipping' %}badge-info
+                        {% elif order.status == 'delivered' %}badge-success
+                        {% else %}badge-danger{% endif %}">
+                        {{ order.get_status_display }}
+                    </span>
+                </td>
+                <td style="color:var(--text-light);font-size:0.85rem;">{{ order.created_at|date:"M d, Y" }}</td>
+                <td>
+                    <div class="actions-cell">
+                        {% if order.status == 'pending' %}
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                            <input type="hidden" name="action" value="confirm">
+                            <button type="submit" class="btn btn-success btn-icon" title="Confirm">✅</button>
+                        </form>
+                        {% endif %}
+                        {% if order.status == 'confirmed' %}
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                            <input type="hidden" name="action" value="ship">
+                            <button type="submit" class="btn btn-info btn-icon" title="Ship">🚚</button>
+                        </form>
+                        {% endif %}
+                        {% if order.status == 'shipping' %}
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                            <input type="hidden" name="action" value="deliver">
+                            <button type="submit" class="btn btn-primary btn-icon" title="Deliver">🏁</button>
+                        </form>
+                        {% endif %}
+                        {% if order.status != 'cancelled' and order.status != 'delivered' %}
+                        <form method="post" style="display:inline;" onsubmit="return confirm('Cancel this order?')">
+                            {% csrf_token %}
+                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                            <input type="hidden" name="action" value="cancel">
+                            <button type="submit" class="btn btn-danger btn-icon" title="Cancel">✕</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="9"><div class="empty-state"><div class="empty-icon">🛒</div><h4>No orders found</h4></div></td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% if page_obj.paginator.num_pages > 1 %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}&status={{ status_filter }}&q={{ search_query }}">&laquo; Prev</a>
+    {% endif %}
+    <span class="current">{{ page_obj.number }}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}&status={{ status_filter }}&q={{ search_query }}">Next &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

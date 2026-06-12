@@ -1,0 +1,61 @@
+{% extends 'admin/admin_base.html' %}
+{% block title %} - Manage Customers{% endblock %}
+{% block admin_content %}
+<div class="page-header">
+    <div>
+        <h2>Manage Customers</h2>
+        <p class="page-subtitle">View and manage registered users</p>
+    </div>
+</div>
+<div class="filter-bar">
+    <form method="get" style="display:flex;gap:8px;flex:1;">
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search customers by name, email..." class="form-control" style="min-width:260px;">
+        <button type="submit" class="btn btn-primary btn-sm">🔍 Search</button>
+    </form>
+</div>
+<div class="card card-p-0">
+    <div class="card-header">
+        <h3>Registered Customers</h3>
+        <span style="color:var(--text-light);font-size:0.85rem;">{{ total_customers }} registered &middot; {{ total_guests }} guest orders</span>
+    </div>
+    <div style="overflow-x:auto;">
+    <table class="admin-table">
+        <thead><tr><th></th><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th><th>Actions</th></tr></thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>
+                    <div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#e0e7ff,#c7d2fe);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:0.9rem;color:#4f46e5;flex-shrink:0;">
+                        {{ user.get_full_name|default:user.username|first|upper|slice:":1" }}
+                    </div>
+                </td>
+                <td><strong>{{ user.get_full_name|default:user.username }}</strong></td>
+                <td style="font-size:0.85rem;">{{ user.email }}</td>
+                <td style="font-size:0.85rem;">{{ user.profile.phone|default:"-" }}</td>
+                <td style="color:var(--text-light);font-size:0.85rem;">{{ user.date_joined|date:"M d, Y" }}</td>
+                <td>
+                    <div class="actions-cell">
+                        <a href="{% url 'admin:auth_user_change' user.id %}" class="btn btn-outline btn-sm" title="View in Django Admin">👁️ View</a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6"><div class="empty-state"><div class="empty-icon">👥</div><h4>No customers found</h4></div></td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+<div class="stats-grid" style="margin-top:2rem;">
+    <div class="stat-card info">
+        <div class="stat-icon">👤</div>
+        <div class="stat-value">{{ total_customers }}</div>
+        <div class="stat-label">Registered Customers</div>
+    </div>
+    <div class="stat-card warning">
+        <div class="stat-icon">🛍️</div>
+        <div class="stat-value">{{ total_guests }}</div>
+        <div class="stat-label">Guest Orders</div>
+    </div>
+</div>
+{% endblock %}

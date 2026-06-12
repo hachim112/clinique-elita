@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %} - Edit Animal{% endblock %}
+{% block content %}
+<style>
+.edit-container { max-width: 700px; margin: 3rem auto; }
+</style>
+<div class="container">
+    <div class="edit-container">
+        <h1 class="section-title" style="font-size:1.8rem;">Edit Animal Profile</h1>
+        <div class="card" style="padding:2rem;">
+            <form method="post">
+                {% csrf_token %}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="name" required value="{{ animal.name }}" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                    </div>
+                    <div class="form-group">
+                        <label>Species</label>
+                        <select name="species" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                            {% for val, label in form.species.field.choices %}
+                            <option value="{{ val }}" {% if animal.species == val %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Breed</label>
+                        <input type="text" name="breed" value="{{ animal.breed }}" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                    </div>
+                    <div class="form-group">
+                        <label>Weight</label>
+                        <input type="text" name="weight" value="{{ animal.weight }}" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                    </div>
+                    <div class="form-group">
+                        <label>Age</label>
+                        <input type="text" name="age" value="{{ animal.age }}" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                    </div>
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select name="gender" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                            <option value="">Select</option>
+                            <option value="male" {% if animal.gender == 'male' %}selected{% endif %}>Male</option>
+                            <option value="female" {% if animal.gender == 'female' %}selected{% endif %}>Female</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column:1/-1;">
+                        <label>Vaccination History</label>
+                        <textarea name="vaccination_history" rows="3" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">{{ animal.vaccination_history }}</textarea>
+                    </div>
+                    <div class="form-group" style="grid-column:1/-1;">
+                        <label>Medical Notes</label>
+                        <textarea name="medical_notes" rows="3" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">{{ animal.medical_notes }}</textarea>
+                    </div>
+                </div>
+                <div style="display:flex;gap:1rem;margin-top:1.5rem;">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a href="{% url 'animal_profiles' %}" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

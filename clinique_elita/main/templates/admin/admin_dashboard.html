@@ -1,0 +1,164 @@
+{% extends 'admin/admin_base.html' %}
+{% block title %} - Admin Dashboard{% endblock %}
+{% block admin_content %}
+<div class="page-header">
+    <div>
+        <h2>Dashboard Overview</h2>
+        <p class="page-subtitle">📅 {% now "M d, Y" %} &mdash; Here's what's happening today</p>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card info">
+        <div class="stat-icon">📅</div>
+        <div class="stat-value">{{ total_appointments }}</div>
+        <div class="stat-label">Total Appointments</div>
+        <div class="stat-trend"><span style="color:var(--sky-blue);">{{ pending_appointments }} pending</span></div>
+    </div>
+    <div class="stat-card success">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">{{ accepted_appointments }}</div>
+        <div class="stat-label">Accepted Appointments</div>
+    </div>
+    <div class="stat-card warning">
+        <div class="stat-icon">📦</div>
+        <div class="stat-value">{{ total_products }}</div>
+        <div class="stat-label">Total Products</div>
+        <div class="stat-trend down" style="color:#ef4444;">{{ out_of_stock }} out of stock</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🛒</div>
+        <div class="stat-value">{{ total_orders }}</div>
+        <div class="stat-label">Total Orders</div>
+    </div>
+    <div class="stat-card success">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value" style="font-size:1.4rem;">{{ today_sales }} DZD</div>
+        <div class="stat-label">Today's Sales</div>
+    </div>
+    <div class="stat-card info">
+        <div class="stat-icon">📈</div>
+        <div class="stat-value" style="font-size:1.4rem;">{{ monthly_sales }} DZD</div>
+        <div class="stat-label">Monthly Sales</div>
+    </div>
+</div>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;margin-bottom:2rem;">
+    <div class="chart-container">
+        <h3>📈 Monthly Sales (Last 12 Months)</h3>
+        <canvas id="salesChart" style="max-height:300px;"></canvas>
+    </div>
+    <div class="chart-container">
+        <h3>🥧 Appointments by Status</h3>
+        <canvas id="apptChart"></canvas>
+    </div>
+</div>
+
+<div class="card card-p-0">
+    <div class="card-header">
+        <h3>📋 Recent Orders</h3>
+        <a href="{% url 'admin_orders' %}" class="btn btn-primary btn-sm">View All</a>
+    </div>
+    <table class="admin-table">
+        <thead><tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>
+            {% for order in recent_orders %}
+            <tr>
+                <td><strong>#{{ order.order_id }}</strong></td>
+                <td>{{ order.guest_name|default:order.user.get_full_name|default:"Guest" }}</td>
+                <td><strong>{{ order.total_price }} DZD</strong></td>
+                <td>
+                    <span class="admin-badge
+                        {% if order.status == 'pending' %}badge-warning
+                        {% elif order.status == 'confirmed' %}badge-success
+                        {% elif order.status == 'shipping' %}badge-warning
+                        {% elif order.status == 'delivered' %}badge-success
+                        {% else %}badge-danger{% endif %}">
+                        {{ order.get_status_display }}
+                    </span>
+                </td>
+                <td style="color:var(--text-light);">{{ order.created_at|date:"M d, Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📭</div><h4>No orders yet</h4></div></td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+const salesCtx = document.getElementById('salesChart').getContext('2d');
+new Chart(salesCtx, {
+    type: 'line',
+    data: {
+        labels: {{ monthly_labels|safe }},
+        datasets: [{
+            label: 'Sales (DZD)',
+            data: {{ monthly_data|safe }},
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59,130,246,0.08)',
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#0f172a',
+            pointBorderColor: '#3b82f6',
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            borderWidth: 2.5,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(0,0,0,0.04)' },
+        ticks: { font: { family: 'Poppins', size: 11 } }
+            },
+            x: {
+                grid: { display: false },
+        ticks: { font: { family: 'Poppins', size: 11 } }
+            }
+        },
+        plugins: {
+            legend: { display: false },
+        }
+    }
+});
+
+const apptCtx = document.getElementById('apptChart').getContext('2d');
+new Chart(apptCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Pending', 'Accepted', 'Completed', 'Denied'],
+        datasets: [{
+            data: [
+                {{ appointment_stats.pending|default:0 }},
+                {{ appointment_stats.accepted|default:0 }},
+                {{ appointment_stats.completed|default:0 }},
+                {{ appointment_stats.denied|default:0 }},
+            ],
+            backgroundColor: ['#f59e0b', '#10b981', '#3b82f6', '#ef4444'],
+            borderWidth: 3,
+            borderColor: '#ffffff',
+            hoverBorderWidth: 4,
+        }]
+    },
+    options: {
+        responsive: true,
+        cutout: '68%',
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 16,
+                    usePointStyle: true,
+                    pointStyle: 'circle',
+                    font: { family: 'Poppins', size: 12 }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

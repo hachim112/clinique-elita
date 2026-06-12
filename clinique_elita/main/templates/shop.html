@@ -1,0 +1,409 @@
+{% extends 'base.html' %}
+{% block title %} - Pet Shop{% endblock %}
+{% block content %}
+<style>
+.shop-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+.shop-sidebar {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    position: sticky;
+    top: 90px;
+}
+.shop-sidebar h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--dark-blue);
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+.sidebar-cat-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.sidebar-cat-list li {
+    margin-bottom: 0.25rem;
+}
+.sidebar-cat-list a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-dark);
+    transition: var(--transition);
+    text-decoration: none;
+}
+.sidebar-cat-list a:hover {
+    background: var(--light-gray);
+    color: var(--sky-blue);
+}
+.sidebar-cat-list a.active {
+    background: rgba(78,168,222,0.1);
+    color: var(--sky-blue);
+    font-weight: 600;
+}
+.sidebar-cat-thumb {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: var(--light-gray);
+    flex-shrink: 0;
+}
+.sidebar-cat-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--light-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+.sidebar-cat-count {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    background: var(--light-gray);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+}
+.shop-main {
+    min-width: 0;
+}
+.shop-filters {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.5rem;
+}
+.filter-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+.filter-group { flex: 1; min-width: 140px; }
+.filter-group label {
+    display: block;
+    font-weight: 500;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-bottom: 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.25rem;
+}
+.product-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+}
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+}
+.product-img-wrap {
+    position: relative;
+    height: 200px;
+    background: linear-gradient(135deg, var(--light-gray), #e2e8f0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.product-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.product-img-icon {
+    font-size: 3.5rem;
+    color: var(--sky-blue);
+    opacity: 0.5;
+}
+.product-body {
+    padding: 1rem 1.2rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+.product-category-tag {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--sky-blue);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.3rem;
+}
+.product-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.4rem;
+    color: var(--dark-blue);
+    line-height: 1.3;
+}
+.product-price {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--dark-blue);
+    margin-bottom: 0.5rem;
+}
+.product-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-bottom: 0.75rem;
+}
+.product-rating {
+    color: #f59e0b;
+    font-size: 0.85rem;
+}
+.product-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+}
+.product-actions .btn {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    padding: 8px 12px;
+}
+.product-stock-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+.badge-success { background: rgba(16,185,129,0.9); color: white; }
+.badge-warning { background: rgba(245,158,11,0.9); color: white; }
+.badge-danger { background: rgba(239,68,68,0.9); color: white; }
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+.pagination a, .pagination span {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--text-dark);
+    transition: var(--transition);
+}
+.pagination a:hover {
+    border-color: var(--sky-blue);
+    color: var(--sky-blue);
+}
+.pagination .current {
+    background: var(--sky-blue);
+    color: white;
+    border-color: var(--sky-blue);
+}
+.no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-light);
+}
+@media (max-width: 900px) {
+    .shop-layout {
+        grid-template-columns: 1fr;
+    }
+    .shop-sidebar {
+        position: static;
+    }
+    .sidebar-cat-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 0.5rem;
+    }
+    .sidebar-cat-list li { margin: 0; }
+    .sidebar-cat-count { display: none; }
+}
+</style>
+<div class="container" style="padding-top: 2rem;">
+    <div style="display:flex;align-items:center;gap:8px;font-size:0.9rem;color:var(--text-light);margin-bottom:1.25rem;">
+        <a href="{% url 'home' %}" style="color:var(--text-light);">Home</a> <span>/</span> <span style="color:var(--text-dark);font-weight:500;">Pet Shop</span>
+    </div>
+    <div class="shop-layout">
+        <aside class="shop-sidebar">
+            <h3>📁 Categories</h3>
+            <ul class="sidebar-cat-list">
+                <li>
+                    <a href="?{% if selected_category %}{% else %}sort={{ sort_by }}&q={{ search_query }}{% endif %}" class="{% if not selected_category %}active{% endif %}">
+                        <div class="sidebar-cat-icon">📦</div>
+                        All Products
+                        {% if not selected_category %}<span class="sidebar-cat-count">{{ page_obj.paginator.count }}</span>{% endif %}
+                    </a>
+                </li>
+                {% for cat in categories %}
+                <li>
+                    <a href="?category={{ cat.id }}&sort={{ sort_by }}&q={{ search_query }}" class="{% if selected_category|add:0 == cat.id %}active{% endif %}">
+                        {% if cat.image %}
+                        <img src="{{ cat.image.url }}" alt="{{ cat.name }}" class="sidebar-cat-thumb">
+                        {% else %}
+                        <div class="sidebar-cat-icon">📁</div>
+                        {% endif %}
+                        {{ cat.name }}
+                        <span class="sidebar-cat-count">{{ cat.products.count }}</span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </aside>
+        <div class="shop-main">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem;">
+                <h1 style="font-size:1.5rem;font-weight:700;color:var(--dark-blue);">
+                    {% if selected_category %}{{ selected_category|capfirst }}{% else %}All Products{% endif %}
+                </h1>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <input type="text" id="searchInput" placeholder="Search..." value="{{ search_query }}" style="padding:9px 16px;border-radius:50px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);min-width:180px;font-size:0.85rem;">
+                    <button onclick="applySearch()" class="btn btn-primary btn-sm"><i class="fas fa-search"></i></button>
+                    <select id="sortSelect" onchange="applySort()" class="form-control" style="padding:9px 12px;border-radius:50px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);font-size:0.85rem;min-width:140px;">
+                        <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest</option>
+                        <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low → High</option>
+                        <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High → Low</option>
+                    </select>
+                </div>
+            </div>
+            <div class="shop-filters">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>Min Price (DZD)</label>
+                        <input type="number" id="minPrice" value="{{ min_price }}" placeholder="0" class="form-control" style="font-size:0.85rem;">
+                    </div>
+                    <div class="filter-group">
+                        <label>Max Price (DZD)</label>
+                        <input type="number" id="maxPrice" value="{{ max_price }}" placeholder="50000" class="form-control" style="font-size:0.85rem;">
+                    </div>
+                    <div class="filter-group" style="flex:0;min-width:auto;">
+                        <label style="visibility:hidden;">Apply</label>
+                        <button onclick="applyFilters()" class="btn btn-primary btn-sm" style="white-space:nowrap;">Apply Filters</button>
+                    </div>
+                </div>
+            </div>
+            <div class="product-grid">
+                {% for product in page_obj %}
+                <div class="product-card">
+                    <div class="product-img-wrap">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                        {% else %}
+                        <span class="product-img-icon"><i class="fas fa-box-open"></i></span>
+                        {% endif %}
+                        {% if product.stock == 0 %}
+                        <span class="product-stock-badge badge-danger">Out of Stock</span>
+                        {% elif product.stock < 5 %}
+                        <span class="product-stock-badge badge-warning">Low Stock</span>
+                        {% endif %}
+                    </div>
+                    <div class="product-body">
+                        <div class="product-category-tag">{{ product.category.name }}</div>
+                        <div class="product-name">{{ product.name }}</div>
+                        <div class="product-price">{{ product.price }} DZD</div>
+                        <div class="product-meta">
+                            <span>Stock: {{ product.stock }}</span>
+                            <span class="product-rating">★ {{ product.rating|floatformat:"1" }}</span>
+                        </div>
+                        <div class="product-actions">
+                            <a href="{% url 'product_detail' product.id %}" class="btn btn-outline btn-sm">Details</a>
+                            <form method="post" action="{% url 'add_to_cart' product.id %}" style="flex:1;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary btn-sm" style="width:100%;" {% if product.stock < 1 %}disabled{% endif %}>
+                                    {% if product.stock > 0 %}<i class="fas fa-cart-plus"></i> Add{% else %}Sold Out{% endif %}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="no-results card">
+                    <div style="font-size:3rem;margin-bottom:1rem;">🔍</div>
+                    <h3>No products found</h3>
+                    <p>Try adjusting your filters or search query.</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% if page_obj.paginator.num_pages > 1 %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}&category={{ selected_category }}&sort={{ sort_by }}&q={{ search_query }}">&laquo; Prev</a>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <span class="current">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}&category={{ selected_category }}&sort={{ sort_by }}&q={{ search_query }}">{{ num }}</a>
+                {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&category={{ selected_category }}&sort={{ sort_by }}&q={{ search_query }}">Next &raquo;</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script>
+function buildBaseUrl() {
+    let url = '?';
+    const cat = '{{ selected_category }}';
+    const sort = document.getElementById('sortSelect').value;
+    const q = document.getElementById('searchInput').value;
+    if (cat) url += 'category=' + cat + '&';
+    url += 'sort=' + sort + '&q=' + encodeURIComponent(q);
+    return url;
+}
+function applySearch() { location.href = buildBaseUrl(); }
+function applySort() { location.href = buildBaseUrl(); }
+function applyFilters() {
+    const base = buildBaseUrl();
+    const min = document.getElementById('minPrice').value;
+    const max = document.getElementById('maxPrice').value;
+    let url = base;
+    if (min) url += '&min_price=' + min;
+    if (max) url += '&max_price=' + max;
+    location.href = url;
+}
+document.getElementById('searchInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') applySearch();
+});
+</script>
+{% endblock %}

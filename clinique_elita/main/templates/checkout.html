@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %} - Checkout{% endblock %}
+{% block content %}
+<style>
+.checkout-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 2rem;
+}
+.review-item {
+    display: flex;
+    gap: 1rem;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+@media (max-width: 768px) {
+    .checkout-grid { grid-template-columns: 1fr; }
+}
+</style>
+<div class="container" style="padding-top: 3rem;">
+    <h1 class="section-title">Checkout</h1>
+    <div class="checkout-grid">
+        <div class="card" style="padding:2rem;">
+            <h3 style="margin-bottom:1.5rem;">Shipping Information</h3>
+            <form method="post">
+                {% csrf_token %}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" name="name" required value="{{ form.name.value|default:'' }}" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" name="phone" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                    </div>
+                    <div class="form-group">
+                        <label>Wilaya</label>
+                        <input type="text" name="wilaya" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                    </div>
+                    <div class="form-group">
+                        <label>Commune</label>
+                        <input type="text" name="commune" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                    </div>
+                    <div class="form-group" style="grid-column:1/-1;">
+                        <label>Address</label>
+                        <textarea name="address" rows="3" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);"></textarea>
+                    </div>
+                    <div class="form-group" style="grid-column:1/-1;">
+                        <label>Notes (optional)</label>
+                        <textarea name="notes" rows="2" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);"></textarea>
+                    </div>
+                </div>
+                <div style="margin-top:1.5rem;">
+                    <span><strong>Payment:</strong> Cash On Delivery</span>
+                    <p style="font-size:0.85rem;color:var(--text-light);">Pay when you receive your order.</p>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;margin-top:1.5rem;"><i class="fas fa-truck"></i> Place Order</button>
+            </form>
+        </div>
+        <div class="cart-summary">
+            <h3 style="margin-bottom:1rem;">Order Summary</h3>
+            {% for item in items %}
+            <div class="review-item">
+                <div class="cart-item-img"><i class="fas fa-box" style="color:var(--sky-blue);"></i></div>
+                <div style="flex-grow:1;">
+                    <div style="font-weight:500;">{{ item.product.name }}</div>
+                    <div style="font-size:0.85rem;color:var(--text-light);">Qty: {{ item.quantity }}</div>
+                </div>
+                <div style="font-weight:600;">{{ item.total_price }} DZD</div>
+            </div>
+            {% endfor %}
+            <div style="display:flex;justify-content:space-between;padding:1rem 0;border-top:2px solid #f3f4f6;margin-top:1rem;font-size:1.2rem;font-weight:700;">
+                <span>Total</span>
+                <span>{{ total }} DZD</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

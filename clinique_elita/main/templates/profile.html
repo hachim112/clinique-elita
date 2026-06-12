@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %} - Profile{% endblock %}
+{% block content %}
+<style>
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        padding: 3rem;
+        background: linear-gradient(135deg, var(--dark-blue), var(--sky-blue));
+        color: white;
+        border-radius: var(--radius);
+        margin-bottom: 2rem;
+    }
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: white;
+    }
+    .profile-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+    .stat-box {
+        background: white;
+        padding: 1.5rem;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        text-align: center;
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        transition: var(--transition);
+    }
+    .stat-box:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-hover);
+    }
+    .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, var(--dark-blue), var(--sky-blue));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .stat-number { font-size: 2rem; font-weight: 700; color: var(--sky-blue); }
+    .stat-label { font-size: 0.9rem; color: var(--text-light); }
+    @media (max-width: 600px) {
+        .profile-header { flex-direction: column; text-align: center; }
+    }
+</style>
+<div class="container" style="padding-top: 3rem;">
+    <div class="profile-header">
+        <div class="profile-avatar"><i class="fas fa-user"></i></div>
+        <div>
+            <h2>{{ user.get_full_name|default:user.username }}</h2>
+            <p>{{ user.email }}</p>
+            {% if user.profile.phone %}
+            <p><i class="fas fa-phone"></i> {{ user.profile.phone }}</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="profile-stats">
+        <a href="{% url 'my_orders' %}" class="stat-box">
+            <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+            <div class="stat-number">{{ orders_count }}</div>
+            <div class="stat-label">Orders</div>
+        </a>
+        <a href="{% url 'appointments' %}" class="stat-box">
+            <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+            <div class="stat-number">{{ appointments_count }}</div>
+            <div class="stat-label">Appointments</div>
+        </a>
+        <a href="{% url 'animal_profiles' %}" class="stat-box">
+            <div class="stat-icon"><i class="fas fa-paw"></i></div>
+            <div class="stat-number">{{ animals_count }}</div>
+            <div class="stat-label">Animals</div>
+        </a>
+    </div>
+</div>
+{% endblock %}

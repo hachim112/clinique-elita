@@ -1,0 +1,76 @@
+{% extends 'admin/admin_base.html' %}
+{% block title %} - Contact Messages{% endblock %}
+{% block admin_content %}
+<div class="page-header">
+    <div>
+        <h2>Contact Messages</h2>
+        <p class="page-subtitle">Messages from customers via the contact form</p>
+    </div>
+</div>
+<div class="card card-p-0">
+    <div class="card-header">
+        <h3>All Messages</h3>
+        <span style="color:var(--text-light);font-size:0.85rem;">{{ page_obj.paginator.count }} messages</span>
+    </div>
+    <div style="overflow-x:auto;">
+    <table class="admin-table">
+        <thead><tr><th></th><th>Name</th><th>Email</th><th>Message</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody>
+            {% for msg in page_obj %}
+            <tr style="{% if not msg.is_read %}border-left:3px solid var(--sky-blue);{% endif %}">
+                <td style="text-align:center;">
+                    {% if not msg.is_read %}
+                    <span style="width:8px;height:8px;border-radius:50%;background:var(--sky-blue);display:inline-block;"></span>
+                    {% else %}
+                    <span style="color:var(--text-light);">✓</span>
+                    {% endif %}
+                </td>
+                <td><strong>{{ msg.name }}</strong></td>
+                <td style="font-size:0.85rem;">{{ msg.email }}</td>
+                <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.85rem;color:var(--text-light);">{{ msg.message }}</td>
+                <td>
+                    {% if msg.is_read %}
+                    <span class="admin-badge badge-success">Read</span>
+                    {% else %}
+                    <span class="admin-badge badge-info">Unread</span>
+                    {% endif %}
+                </td>
+                <td style="color:var(--text-light);font-size:0.85rem;">{{ msg.created_at|date:"M d, Y" }}</td>
+                <td>
+                    <div class="actions-cell">
+                        {% if not msg.is_read %}
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="msg_id" value="{{ msg.id }}">
+                            <input type="hidden" name="action" value="mark_read">
+                            <button type="submit" class="btn btn-success btn-sm btn-icon" title="Mark Read">✓</button>
+                        </form>
+                        {% endif %}
+                        <form method="post" style="display:inline;" onsubmit="return confirm('Delete this message?')">
+                            {% csrf_token %}
+                            <input type="hidden" name="msg_id" value="{{ msg.id }}">
+                            <input type="hidden" name="action" value="delete">
+                            <button type="submit" class="btn btn-danger btn-sm btn-icon" title="Delete">🗑️</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">💬</div><h4>No messages yet</h4></div></td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% if page_obj.paginator.num_pages > 1 %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}">&laquo; Prev</a>
+    {% endif %}
+    <span class="current">{{ page_obj.number }}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">Next &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,151 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin - Clinique Elita{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'admin/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="android-overlay" id="androidOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <span class="brand-icon">🏥</span>
+            <span class="brand-text">Clinique Elita</span>
+        </div>
+        <nav>
+            <div class="nav-section">Main</div>
+            <ul style="list-style:none;padding:0;margin:0;">
+                <li><a href="{% url 'admin_dashboard' %}" class="{% if 'admin_dashboard' in request.path %}active{% endif %}" data-icon="📊">
+                    <span class="nav-icon">📊</span><span>Dashboard</span>
+                </a></li>
+            </ul>
+            <div class="nav-section">Management</div>
+            <ul style="list-style:none;padding:0;margin:0;">
+                <li><a href="{% url 'admin_appointments' %}" class="{% if 'admin_appointments' in request.path %}active{% endif %}" data-icon="📅">
+                    <span class="nav-icon">📅</span><span>Appointments</span>
+                </a></li>
+                <li><a href="{% url 'admin_products' %}" class="{% if 'admin_products' in request.path %}active{% endif %}" data-icon="📦">
+                    <span class="nav-icon">📦</span><span>Products</span>
+                </a></li>
+                <li><a href="{% url 'admin_orders' %}" class="{% if 'admin_orders' in request.path %}active{% endif %}" data-icon="🛒">
+                    <span class="nav-icon">🛒</span><span>Orders</span>
+                </a></li>
+                <li><a href="{% url 'admin_categories' %}" class="{% if 'admin_categories' in request.path %}active{% endif %}" data-icon="📁">
+                    <span class="nav-icon">📁</span><span>Categories</span>
+                </a></li>
+                <li><a href="{% url 'admin_customers' %}" class="{% if 'admin_customers' in request.path %}active{% endif %}" data-icon="👥">
+                    <span class="nav-icon">👥</span><span>Customers</span>
+                </a></li>
+            </ul>
+            <div class="nav-section">Communication</div>
+            <ul style="list-style:none;padding:0;margin:0;">
+                <li><a href="{% url 'admin_contact_messages' %}" class="{% if 'admin_contact_messages' in request.path %}active{% endif %}" data-icon="💬">
+                    <span class="nav-icon">💬</span><span>Messages</span>
+                    {% if unread_messages_count > 0 %}
+                    <span class="nav-badge">{{ unread_messages_count }}</span>
+                    {% endif %}
+                </a></li>
+            </ul>
+            <div class="nav-section">System</div>
+            <ul style="list-style:none;padding:0;margin:0;">
+                <li><a href="{% url 'home' %}" data-icon="🏠">
+                    <span class="nav-icon">🏠</span><span>Back to Site</span>
+                </a></li>
+            </ul>
+        </nav>
+    </aside>
+    <main class="admin-main" id="adminMain">
+        <header class="admin-topbar">
+            <button id="sidebarToggle" class="sidebar-toggle" aria-label="Toggle sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="topbar-search">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Search across users, orders, products..." id="globalSearch">
+            </div>
+            <div class="topbar-actions">
+<button class="topbar-btn" aria-label="Notifications" style="position:relative;">
+                     🔔
+                     {% if unread_messages_count > 0 %}
+                     <span class="notification-badge">{{ unread_messages_count }}</span>
+                     {% endif %}
+                 </button>
+                <div class="user-dropdown" id="userDropdown">
+                    <button class="user-dropdown-toggle" onclick="toggleDropdown(event)">
+                        <span class="user-avatar">{{ user.get_full_name|default:user.username|first|upper }}</span>
+                        <span class="brand-text">{{ user.get_full_name|default:user.username }}</span>
+                        <span class="brand-text" style="font-size:0.7rem;color:var(--text-light);">▼</span>
+                    </button>
+                    <div class="user-dropdown-menu" id="userDropdownMenu">
+                        <a href="{% url 'profile' %}"><i class="fas fa-user" style="width:18px;"></i> My Profile</a>
+                        <a href="{% url 'profile' %}"><i class="fas fa-cog" style="width:18px;"></i> Settings</a>
+                        <a href="{% url 'logout' %}" class="logout-link"><i class="fas fa-sign-out-alt" style="width:18px;"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="admin-content">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <span>{% if message.tags == 'success' %}✓{% elif message.tags == 'error' %}✕{% else %}⚠{% endif %}</span>
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% block admin_content %}{% endblock %}
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebarToggle');
+        const overlay = document.getElementById('androidOverlay');
+        const adminMain = document.getElementById('adminMain');
+
+        toggle.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('show');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                adminMain.classList.toggle('sidebar-collapsed');
+            }
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('show');
+        });
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('show');
+            }
+        });
+
+        function toggleDropdown(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('userDropdownMenu');
+            menu.classList.toggle('show');
+        }
+
+        document.addEventListener('click', () => {
+            document.getElementById('userDropdownMenu').classList.remove('show');
+        });
+
+        document.getElementById('userDropdownMenu').addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

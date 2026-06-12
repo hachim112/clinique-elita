@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %} - Order Tracking{% endblock %}
+{% block content %}
+<style>
+.tracking-progress {
+    display: flex;
+    justify-content: space-between;
+    margin: 3rem 0;
+    position: relative;
+}
+.tracking-progress::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 5%;
+    width: 90%;
+    height: 3px;
+    background: #e5e7eb;
+    z-index: 1;
+}
+.tracking-step {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+.tracking-dot {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    margin: 0 auto 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: var(--transition);
+}
+.tracking-step.active .tracking-dot {
+    background: var(--sky-blue);
+    color: white;
+    box-shadow: 0 0 0 8px rgba(78,168,222,0.2);
+}
+.tracking-step.done .tracking-dot {
+    background: #10b981;
+    color: white;
+}
+.tracking-label { font-size: 0.85rem; font-weight: 500; }
+</style>
+<div class="container" style="padding-top: 3rem;">
+    <div class="breadcrumb">
+        <a href="{% url 'home' %}">Home</a> <span>/</span>
+        <a href="{% url 'my_orders' %}">Orders</a> <span>/</span>
+        <span>#{{ order.order_id }}</span>
+    </div>
+    <div class="card" style="padding:2rem;margin-bottom:2rem;">
+        <h2>Order #{{ order.order_id }}</h2>
+        <div style="display:flex;gap:2rem;flex-wrap:wrap;margin-top:1rem;color:var(--text-light);">
+            <span>📅 {{ order.created_at|date:"M d, Y H:i" }}</span>
+            <span>📍 {{ order.wilaya }}, {{ order.commune }}</span>
+            <span>💵 {{ order.total_price }} DZD</span>
+        </div>
+    </div>
+
+    <div class="tracking-progress">
+        <div class="tracking-step {% if order.status == 'pending' %}active{% elif order.status != 'pending' %}done{% endif %}">
+            <div class="tracking-dot">1</div><div class="tracking-label">Pending</div>
+        </div>
+        <div class="tracking-step {% if order.status == 'confirmed' %}active{% elif order.status == 'shipping' or order.status == 'delivered' %}done{% endif %}">
+            <div class="tracking-dot">2</div><div class="tracking-label">Confirmed</div>
+        </div>
+        <div class="tracking-step {% if order.status == 'shipping' %}active{% elif order.status == 'delivered' %}done{% endif %}">
+            <div class="tracking-dot">3</div><div class="tracking-label">Shipping</div>
+        </div>
+        <div class="tracking-step {% if order.status == 'delivered' %}active{% endif %}">
+            <div class="tracking-dot">4</div><div class="tracking-label">Delivered</div>
+        </div>
+    </div>
+
+    <div class="card" style="padding:2rem;">
+        <h3>Order Status: <strong>{{ order.get_status_display }}</strong></h3>
+        <div style="margin-top:1.5rem;">
+            <h4>Shipping Address</h4>
+            <p style="color:var(--text-light);">{{ order.address }}, {{ order.commune }}, {{ order.wilaya }}</p>
+        </div>
+        <div style="margin-top:1.5rem;">
+            <h4>Items</h4>
+            {% for item in order.items.all %}
+            <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #f3f4f6;">
+                <span>{{ item.product_name }} x{{ item.quantity }}</span>
+                <strong>{{ item.total_price }} DZD</strong>
+            </div>
+            {% endfor %}
+            <div style="display:flex;justify-content:space-between;padding-top:1rem;font-weight:700;">
+                <span>Total</span>
+                <span>{{ order.total_price }} DZD</span>
+            </div>
+        </div>
+        {% if order.notes %}
+        <div style="margin-top:1rem;color:var(--text-light);"><strong>Notes:</strong> {{ order.notes }}</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

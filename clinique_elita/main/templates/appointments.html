@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% block title %} - Appointments{% endblock %}
+{% block content %}
+<style>
+.appt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+.time-slot {
+    padding: 10px;
+    text-align: center;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid #e5e7eb;
+    background: white;
+    transition: var(--transition);
+    font-weight: 500;
+}
+.time-slot:hover:not(.booked):not(.disabled) {
+    border-color: var(--sky-blue);
+    background: rgba(78,168,222,0.05);
+}
+.time-slot.selected {
+    background: var(--sky-blue);
+    color: white;
+    border-color: var(--sky-blue);
+}
+.time-slot.booked, .time-slot.disabled {
+    background: #fee2e2;
+    color: #9ca3af;
+    cursor: not-allowed;
+    border-color: #fecaca;
+}
+[data-theme="dark"] .time-slot.booked { background: #7f1d1d; border-color: #991b1b; }
+@media (max-width: 768px) {
+    .appt-grid { grid-template-columns: 1fr; }
+}
+</style>
+<div class="container" style="padding-top: 3rem;">
+    <h1 class="section-title">Book an Appointment</h1>
+    <p class="section-subtitle">Schedule a visit for your pet. Our clinic is closed on Sundays.</p>
+    <div class="appt-grid">
+        <div class="card">
+            <h3 style="margin-bottom:1.5rem;"><i class="fas fa-calendar-alt"></i> Appointment Form</h3>
+            <form method="post">
+                {% csrf_token %}
+                {% if not user.is_authenticated %}
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="guest_name" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" name="guest_phone" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="guest_email" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                </div>
+                {% endif %}
+                <div class="form-group">
+                    <label>Animal Name</label>
+                    <input type="text" name="animal_name" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                </div>
+                <div class="form-group">
+                    <label>Animal Type</label>
+                    <select name="animal_type" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                        <option value="">Select type</option>
+                        <option value="dog">Dog</option>
+                        <option value="cat">Cat</option>
+                        <option value="bird">Bird</option>
+                        <option value="rabbit">Rabbit</option>
+                        <option value="exotic">Exotic Animal</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Breed</label>
+                    <input type="text" name="breed" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                </div>
+                <div class="form-group">
+                    <label>Age</label>
+                    <input type="text" name="age" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                </div>
+                <div class="form-group">
+                    <label>Reason for Visit</label>
+                    <textarea name="reason" rows="3" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" name="date" id="apptDate" required min="{{ tomorrow|date:'Y-m-d' }}" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                </div>
+                <div class="form-group">
+                    <label>Time Slot</label>
+                    <select name="time" id="apptTime" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                        <option value="">Select date first</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">Book Appointment</button>
+            </form>
+        </div>
+        <div>
+            {% if my_appointments %}
+            <h3 style="margin-bottom:1rem;">{% if user.is_authenticated %}My Appointments{% else %}My Guest Appointments{% endif %}</h3>
+            {% for appt in my_appointments %}
+            <div class="card" style="margin-bottom:1rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+                    <strong>{{ appt.animal_name }}</strong>
+                    <span style="padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;
+                        {% if appt.status == 'pending' %}background:#fef3c7;color:#92400e;
+                        {% elif appt.status == 'accepted' %}background:#d1fae5;color:#065f46;
+                        {% elif appt.status == 'denied' %}background:#fee2e2;color:#991b1b;
+                        {% elif appt.status == 'completed' %}background:#dbeafe;color:#1e40af;
+                        {% endif %}">
+                        {{ appt.get_status_display }}
+                    </span>
+                </div>
+                <p style="font-size:0.9rem;color:var(--text-light);">
+                    <i class="fas fa-calendar"></i> {{ appt.date|date:"M d, Y" }} <i class="fas fa-clock"></i> {{ appt.time|time:"H:i" }}
+                </p>
+                <p style="font-size:0.85rem;color:var(--text-light);">{{ appt.reason|truncatechars:60 }}</p>
+                <p style="font-size:0.8rem;color:var(--sky-blue);"><strong>Tracking ID:</strong> {{ appt.tracking_id }}</p>
+                {% if appt.status == 'pending' and user.is_authenticated %}
+                <a href="{% url 'cancel_appointment' appt.id %}" class="btn btn-outline btn-sm btn-danger" style="margin-top:0.5rem;" onclick="return confirm('Cancel this appointment?')">Cancel</a>
+                {% endif %}
+                {% if not user.is_authenticated %}
+                <a href="{% url 'track_appointment' %}" class="btn btn-outline btn-sm" style="margin-top:0.5rem;">🔍 Track Appointment</a>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="card" style="text-align:center;padding:2rem;color:var(--text-light);">
+                <p>No appointments yet. Book one today!</p>
+            </div>
+            {% endfor %}
+            {% endif %}
+            <div class="card" style="margin-top:1.5rem;background:linear-gradient(135deg,rgba(78,168,222,0.1),rgba(18,52,88,0.05));">
+                <h4><i class="fas fa-info-circle"></i> Information</h4>
+                <ul style="font-size:0.9rem;color:var(--text-light);margin-top:0.5rem;padding-left:1.2rem;">
+                    <li>Working hours: 08:00 - 17:00</li>
+                    <li>Closed on Sundays</li>
+                    <li>Time slots every 30 minutes</li>
+                    <li>Arrive 10 minutes before your appointment</li>
+                </ul>
+            </div>
+            {% if not user.is_authenticated and not my_appointments %}
+            <div class="card" style="margin-top:1rem;text-align:center;">
+                <p style="font-size:0.9rem;"><a href="{% url 'track_appointment' %}" style="color:var(--sky-blue);font-weight:600;">🔍 Track my appointment</a> - Use phone number + appointment ID</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script>
+const dateInput = document.getElementById('apptDate');
+const timeSelect = document.getElementById('apptTime');
+const initialSlots = {{ available_slots_json|safe }};
+dateInput.value = '{{ tomorrow|date:"Y-m-d" }}';
+loadSlots('{{ tomorrow|date:"Y-m-d" }}', initialSlots);
+dateInput.addEventListener('change', function() {
+    fetchSlots(this.value);
+});
+function fetchSlots(dateStr) {
+    timeSelect.innerHTML = '<option>Loading...</option>';
+    fetch(`{% url 'get_available_slots_ajax' %}?date=${dateStr}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) {
+                timeSelect.innerHTML = `<option disabled>${data.error}</option>`;
+                return;
+            }
+            loadSlots(dateStr, data.slots);
+        });
+}
+function loadSlots(dateStr, slots) {
+    timeSelect.innerHTML = '<option value="">Select a time</option>';
+    slots.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.value;
+        opt.textContent = s.label;
+        timeSelect.appendChild(opt);
+    });
+}
+</script>
+{% endblock %}

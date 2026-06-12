@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% block title %} - {{ product.name }}{% endblock %}
+{% block content %}
+<style>
+.product-detail {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    padding: 2.5rem 0;
+    align-items: start;
+}
+.product-main-img {
+    height: 420px;
+    background: linear-gradient(135deg, var(--light-gray), #e2e8f0);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+.product-main-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.product-main-icon {
+    font-size: 8rem;
+    color: var(--sky-blue);
+    opacity: 0.4;
+}
+.product-info h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--dark-blue);
+}
+.product-category-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--sky-blue);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+}
+.product-price-large {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dark-blue);
+    margin: 1rem 0;
+}
+.rating-stars { color: #f59e0b; font-size: 1.2rem; }
+.rating-stars .rating-text {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-left: 6px;
+}
+.product-description {
+    color: var(--text-dark);
+    line-height: 1.7;
+    margin: 1rem 0;
+    font-size: 0.95rem;
+}
+.stock-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.stock-success { background: rgba(16,185,129,0.1); color: #059669; }
+.stock-danger { background: rgba(239,68,68,0.1); color: #dc2626; }
+.stock-warning { background: rgba(245,158,11,0.1); color: #d97706; }
+.quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+.qty-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid #e5e7eb;
+    background: white;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.qty-btn:hover { background: var(--sky-blue); color: white; border-color: var(--sky-blue); }
+.qty-input {
+    width: 64px;
+    text-align: center;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #e5e7eb;
+    background: var(--light-gray);
+    color: var(--text-dark);
+    font-weight: 600;
+    font-size: 1rem;
+}
+.product-actions-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 1.5rem;
+}
+.product-actions-row .btn { flex: 1; justify-content: center; padding: 12px 20px; font-size: 0.9rem; }
+.related-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #f1f5f9;
+}
+.related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+.related-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+}
+.related-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+}
+.related-img {
+    height: 160px;
+    background: linear-gradient(135deg, var(--light-gray), #e2e8f0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.related-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.related-img-icon {
+    font-size: 2.5rem;
+    color: var(--sky-blue);
+    opacity: 0.4;
+}
+.related-body { padding: 1rem; flex: 1; display: flex; flex-direction: column; }
+.related-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem; }
+.related-price { font-weight: 700; color: var(--dark-blue); font-size: 0.95rem; }
+.related-rating { font-size: 0.8rem; color: #f59e0b; margin-top: 0.25rem; }
+.product-meta-row {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 0.75rem 0;
+}
+@media (max-width: 768px) {
+    .product-detail { grid-template-columns: 1fr; gap: 1.5rem; }
+    .product-main-img { height: 280px; }
+}
+</style>
+<div class="container">
+    <div style="display:flex;align-items:center;gap:8px;font-size:0.9rem;color:var(--text-light);margin-bottom:1.25rem;">
+        <a href="{% url 'home' %}" style="color:var(--text-light);">Home</a> <span>/</span>
+        <a href="{% url 'shop' %}" style="color:var(--text-light);">Shop</a> <span>/</span>
+        <span style="color:var(--text-dark);font-weight:500;">{{ product.name }}</span>
+    </div>
+    <div class="product-detail">
+        <div class="product-main-img">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% else %}
+            <span class="product-main-icon"><i class="fas fa-box-open"></i></span>
+            {% endif %}
+        </div>
+        <div class="product-info">
+            <div class="product-category-label">{{ product.category.name }}</div>
+            <h1>{{ product.name }}</h1>
+            <div class="product-price-large">{{ product.price }} DZD</div>
+            <div class="rating-stars">
+                {% for i in "12345" %}
+                {% if forloop.counter <= product.rating|floatformat:"0" %}
+                <i class="fas fa-star"></i>
+                {% else %}
+                <i class="far fa-star" style="color:#d1d5db;"></i>
+                {% endif %}
+                {% endfor %}
+                <span class="rating-text">({{ product.rating|floatformat:"1" }})</span>
+            </div>
+            <p class="product-description">{{ product.description }}</p>
+            <div class="product-meta-row">
+                <span><strong>Availability:</strong></span>
+                {% if product.stock > 0 %}
+                    {% if product.stock < 5 %}
+                    <span class="stock-info stock-warning">⚠️ Only {{ product.stock }} left</span>
+                    {% else %}
+                    <span class="stock-info stock-success">✓ In Stock ({{ product.stock }})</span>
+                    {% endif %}
+                {% else %}
+                <span class="stock-info stock-danger">✕ Out of Stock</span>
+                {% endif %}
+            </div>
+            <form method="post" action="{% url 'add_to_cart' product.id %}" style="margin-top:1.25rem;">
+                {% csrf_token %}
+                <div class="quantity-selector">
+                    <label style="font-weight:600;font-size:0.9rem;">Quantity:</label>
+                    <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
+                    <input type="number" name="quantity" id="qty" value="1" min="1" max="{{ product.stock }}" class="qty-input">
+                    <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+                </div>
+                <div class="product-actions-row">
+                    <button type="submit" class="btn btn-primary" {% if product.stock < 1 %}disabled{% endif %}>
+                        {% if product.stock > 0 %}<i class="fas fa-cart-plus"></i> Add to Cart{% else %}Out of Stock{% endif %}
+                    </button>
+                    <a href="{% url 'shop' %}" class="btn btn-outline">← Continue Shopping</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <section class="related-section">
+        <h2 class="section-title" style="font-size:1.5rem;">You May Also Like</h2>
+        <div class="related-grid">
+            {% for p in related %}
+            <a href="{% url 'product_detail' p.id %}" class="related-card">
+                <div class="related-img">
+                    {% if p.image %}
+                    <img src="{{ p.image.url }}" alt="{{ p.name }}" loading="lazy">
+                    {% else %}
+                    <span class="related-img-icon"><i class="fas fa-box-open"></i></span>
+                    {% endif %}
+                </div>
+                <div class="related-body">
+                    <div class="related-name">{{ p.name }}</div>
+                    <div style="font-size:0.75rem;color:var(--text-light);margin-bottom:0.25rem;">{{ p.category.name }}</div>
+                    <div class="related-price">{{ p.price }} DZD</div>
+                    <div class="related-rating">★ {{ p.rating|floatformat:"1" }}</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% if not related %}
+        <p style="text-align:center;color:var(--text-light);margin-top:1rem;">No related products in this category yet.</p>
+        {% endif %}
+    </section>
+</div>
+<script>
+function changeQty(delta) {
+    const el = document.getElementById('qty');
+    let val = parseInt(el.value) + delta;
+    if (val < 1) val = 1;
+    if (val > {{ product.stock }}) val = {{ product.stock }};
+    el.value = val;
+}
+</script>
+{% endblock %}

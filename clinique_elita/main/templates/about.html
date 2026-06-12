@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% block title %} - About{% endblock %}
+{% block content %}
+<style>
+.timeline {
+    position: relative;
+    max-width: 800px;
+    margin: 3rem auto;
+    padding: 0 2rem;
+}
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--sky-blue), var(--dark-blue));
+    transform: translateX(-50%);
+}
+.timeline-item {
+    padding: 1.5rem;
+    position: relative;
+    width: 45%;
+    margin-bottom: 2rem;
+}
+.timeline-item:nth-child(odd) { left: 0; text-align: right; }
+.timeline-item:nth-child(even) { left: 55%; }
+.timeline-item::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: var(--sky-blue);
+    border-radius: 50%;
+    top: 20px;
+    right: -52px;
+    z-index: 2;
+    border: 4px solid white;
+}
+.timeline-item:nth-child(even)::after { right: auto; left: -52px; }
+.doctor-card {
+    text-align: center;
+    padding: 2rem 1.5rem;
+}
+.doctor-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+    font-weight: 700;
+}
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+.gallery-item {
+    height: 180px;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, var(--light-gray), #e2e8f0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.gallery-item:hover { transform: scale(1.03); }
+@media (max-width: 768px) {
+    .timeline::before { left: 20px; }
+    .timeline-item { width: calc(100% - 50px); left: 50px !important; text-align: left !important; }
+    .timeline-item::after { left: -38px !important; }
+}
+</style>
+<div class="container">
+    <section class="section">
+        <h1 class="section-title">About Clinique Elita</h1>
+        <p class="section-subtitle" style="max-width:700px;margin:0 auto 3rem;">Dedicated to providing exceptional veterinary care with passion, expertise, and love for every animal.</p>
+        <div class="timeline">
+            <div class="card timeline-item">
+                <h3>2010 - Founded</h3>
+                <p>Clinique Elita was founded with a mission to bring world-class veterinary care to the community.</p>
+            </div>
+            <div class="card timeline-item">
+                <h3>2015 - Expansion</h3>
+                <p>Expanded our team to 10 veterinarians and added modern surgical equipment.</p>
+            </div>
+            <div class="card timeline-item">
+                <h3>2020 - Digital</h3>
+                <p>Launched online appointment system and digital pet records for better care.</p>
+            </div>
+            <div class="card timeline-item">
+                <h3>2025 - Today</h3>
+                <p>Serving over 5000 pets with comprehensive medical, surgical, and shop services.</p>
+            </div>
+        </div>
+    </section>
+    <section class="section">
+        <h2 class="section-title">Our Doctors</h2>
+        <p class="section-subtitle">Meet our dedicated veterinary team</p>
+        <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;">
+            <div class="card doctor-card">
+                <div class="doctor-avatar" style="background:linear-gradient(135deg,#4EA8DE,#123458);">SA</div>
+                <h4>Dr. Sarah Amrani</h4>
+                <p style="color:var(--sky-blue);">Chief Veterinarian</p>
+                <p style="font-size:0.9rem;color:var(--text-light);">15+ years experience in small animal medicine and surgery.</p>
+            </div>
+            <div class="card doctor-card">
+                <div class="doctor-avatar" style="background:linear-gradient(135deg,#123458,#4EA8DE);">KM</div>
+                <h4>Dr. Karim Messaoudi</h4>
+                <p style="color:var(--sky-blue);">Surgeon Specialist</p>
+                <p style="font-size:0.9rem;color:var(--text-light);">Expert in orthopedic and soft tissue surgery.</p>
+            </div>
+            <div class="card doctor-card">
+                <div class="doctor-avatar" style="background:linear-gradient(135deg,#4EA8DE,#123458);">AK</div>
+                <h4>Dr. Amina Khelifi</h4>
+                <p style="color:var(--sky-blue);">Exotic Pet Specialist</p>
+                <p style="font-size:0.9rem;color:var(--text-light);">Passionate about birds, reptiles, and exotic animals.</p>
+            </div>
+            <div class="card doctor-card">
+                <div class="doctor-avatar" style="background:linear-gradient(135deg,#123458,#4EA8DE);">YB</div>
+                <h4>Dr. Youcef Benali</h4>
+                <p style="color:var(--sky-blue);">Dermatologist</p>
+                <p style="font-size:0.9rem;color:var(--text-light);">Specialized in skin conditions and allergy treatments.</p>
+            </div>
+        </div>
+    </section>
+    <section class="section">
+        <h2 class="section-title">Our Mission</h2>
+        <div class="grid" style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+            <div class="card">
+                <h3>🎯 Mission</h3>
+                <p>To provide compassionate, accessible, and advanced veterinary care that improves the health and well-being of every pet we treat. We believe every animal deserves loving, expert medical attention.</p>
+            </div>
+            <div class="card">
+                <h3>🌟 Vision</h3>
+                <p>To be the leading veterinary clinic in Algeria, recognized for excellence in care, innovation in treatment, and commitment to animal welfare. Building a healthier future for all pets.</p>
+            </div>
+        </div>
+    </section>
+    <section class="section">
+        <h2 class="section-title">Gallery</h2>
+        <div class="gallery-grid">
+            <div class="gallery-item">🏥</div>
+            <div class="gallery-item">🩺</div>
+            <div class="gallery-item">🐕</div>
+            <div class="gallery-item">🐈</div>
+            <div class="gallery-item">🏥</div>
+            <div class="gallery-item">🔬</div>
+            <div class="gallery-item">✂️</div>
+            <div class="gallery-item">💉</div>
+        </div>
+    </section>
+</div>
+{% endblock %}

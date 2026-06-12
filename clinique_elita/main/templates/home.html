@@ -1,0 +1,407 @@
+{% extends 'base.html' %}
+{% block title %} - Home{% endblock %}
+{% block content %}
+<style>
+.hero {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(18,52,88,0.92), rgba(78,168,222,0.8));
+    color: white;
+    overflow: hidden;
+}
+.hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900"><rect fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="2" x="0" y="0" width="1440" height="900"/></svg>');
+    background-size: cover;
+}
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+}
+.hero h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    animation: fadeInUp 0.8s ease;
+}
+.hero p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+    animation: fadeInUp 0.8s ease 0.2s backwards;
+}
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    animation: fadeInUp 0.8s ease 0.4s backwards;
+}
+.hero-decoration {
+    position: absolute;
+    right: 5%;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 15rem;
+    opacity: 0.15;
+    z-index: 1;
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Category Cards */
+.cat-card {
+    text-align: center;
+    padding: 2rem 1rem;
+    cursor: pointer;
+}
+.cat-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    background: linear-gradient(135deg, var(--light-gray), #e2e8f0);
+    transition: var(--transition);
+}
+[data-theme="dark"] .cat-icon {
+    background: rgba(78,168,222,0.15);
+}
+.cat-card:hover .cat-icon {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 10px 30px rgba(78,168,222,0.25);
+}
+.cat-card h3 { margin-bottom: 0.5rem; color: var(--dark-blue); }
+[data-theme="dark"] .cat-card h3 { color: white; }
+.cat-card p { font-size: 0.9rem; color: var(--text-light); }
+
+/* Stats */
+.stats-section {
+    background: linear-gradient(135deg, var(--dark-blue), #0d2d4a);
+    color: white;
+    padding: 3rem 0;
+}
+.stat-item { text-align: center; padding: 2rem 1rem; }
+.stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--sky-blue);
+}
+.stat-label {
+    font-size: 1rem;
+    opacity: 0.8;
+    margin-top: 0.3rem;
+}
+
+/* Services */
+.service-card {
+    text-align: center;
+    padding: 2rem;
+}
+.service-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Testimonials */
+.testimonials-section {
+    background: var(--light-gray);
+}
+.testimonial-slider {
+    max-width: 700px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius);
+}
+.testimonial-track {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+.testimonial-item {
+    min-width: 100%;
+    padding: 3rem;
+    text-align: center;
+    background: var(--white);
+}
+.testimonial-quote {
+    font-size: 2rem;
+    color: var(--sky-blue);
+    margin-bottom: 1rem;
+}
+.testimonial-text {
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--text-dark);
+    margin-bottom: 1.5rem;
+}
+.testimonial-author { font-weight: 600; color: var(--dark-blue); }
+[data-theme="dark"] .testimonial-author { color: white; }
+.testimonial-role { font-size: 0.9rem; color: var(--text-light); }
+.testimonial-dots {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 1.5rem;
+}
+.testimonial-dots button {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: none;
+    background: #d1d5db;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.testimonial-dots button.active {
+    background: var(--sky-blue);
+    transform: scale(1.3);
+}
+
+/* Pet Grid in hero */
+.pet-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+}
+@media (max-width: 600px) {
+    .pet-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero h1 { font-size: 2rem; }
+}
+
+@media (max-width: 768px) {
+    .section { padding: 2.5rem 0; }
+    .container { padding: 0 1rem; }
+}
+</style>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container hero-content">
+        <h1>Professional Veterinary Care For Your Beloved Pets</h1>
+        <p>At Clinique Elita, we provide compassionate, expert care for your furry, feathered, and scaled friends. Because they deserve the best.</p>
+        <div class="hero-buttons">
+            <a href="{% url 'appointments' %}" class="btn btn-primary"><i class="fas fa-calendar-check"></i> Book Appointment</a>
+            <a href="{% url 'shop' %}" class="btn btn-outline" style="color:white;border-color:white;"><i class="fas fa-shopping-bag"></i> Shop Products</a>
+        </div>
+    </div>
+    <div class="hero-decoration"><i class="fas fa-paw"></i></div>
+</section>
+
+<!-- Pet Categories -->
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">Explore Categories</h2>
+        <p class="section-subtitle">Browse products tailored for your companion</p>
+        <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.5rem;">
+            {% if categories %}
+                {% for cat in categories %}
+                <a href="{% url 'shop' %}?category={{ cat.id }}" class="card cat-card">
+                    <div class="cat-icon">
+                        {% if cat.image %}
+                        <img src="{{ cat.image.url }}" alt="{{ cat.name }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                        {% else %}
+                        <i class="fas fa-paw"></i>
+                        {% endif %}
+                    </div>
+                    <h3>{{ cat.name }}</h3>
+                    <p>{{ cat.product_count }} product{{ cat.product_count|pluralize }}</p>
+                </a>
+                {% endfor %}
+            {% else %}
+            <div class="card" style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--text-light);">
+                <p>No categories available yet. Check back soon!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Stats -->
+<section class="stats-section">
+    <div class="container">
+        <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
+            <div class="stat-item">
+                <div class="stat-number" data-target="5000">0</div>
+                <div class="stat-label">Happy Pets</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-target="10">0</div>
+                <div class="stat-label">Veterinarians</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-target="15000">0</div>
+                <div class="stat-label">Treatments</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-target="24">0</div>
+                <div class="stat-label">/7 Emergency</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services -->
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">Our Services</h2>
+        <p class="section-subtitle">Comprehensive veterinary care for every need</p>
+        <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;">
+            <div class="card service-card">
+                <div class="service-icon"><i class="fas fa-syringe"></i></div>
+                <h3>Vaccination</h3>
+                <p>Full vaccination protocols to keep your pets healthy and protected.</p>
+            </div>
+            <div class="card service-card">
+                <div class="service-icon"><i class="fas fa-hospital"></i></div>
+                <h3>Surgery</h3>
+                <p>Advanced surgical procedures with state-of-the-art equipment.</p>
+            </div>
+            <div class="card service-card">
+                <div class="service-icon"><i class="fas fa-cut"></i></div>
+                <h3>Grooming</h3>
+                <p>Professional grooming services for a clean and happy pet.</p>
+            </div>
+            <div class="card service-card">
+                <div class="service-icon"><i class="fas fa-stethoscope"></i></div>
+                <h3>Consultation</h3>
+                <p>Expert advice and health checkups from experienced veterinarians.</p>
+            </div>
+            <div class="card service-card">
+                <div class="service-icon"><i class="fas fa-microscope"></i></div>
+                <h3>Laboratory</h3>
+                <p>On-site diagnostics for fast and accurate results.</p>
+            </div>
+            <div class="card service-card">
+                <div class="service-icon"><i class="fas fa-ambulance"></i></div>
+                <h3>Emergency Care</h3>
+                <p>24/7 emergency services when your pet needs immediate help.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="section testimonials-section">
+    <div class="container">
+        <h2 class="section-title">Testimonials</h2>
+        <p class="section-subtitle">What our clients say about us</p>
+        <div class="testimonial-slider" id="testimonialSlider">
+            <div class="testimonial-track" id="testimonialTrack">
+                <div class="testimonial-item">
+                    <div class="testimonial-quote">"</div>
+                    <p class="testimonial-text">Amazing clinic! The staff is incredibly caring and professional. My dog Max received the best treatment possible.</p>
+                    <div class="testimonial-author">Sarah B.</div>
+                    <div class="testimonial-role">Dog Owner</div>
+                </div>
+                <div class="testimonial-item">
+                    <div class="testimonial-quote">"</div>
+                    <p class="testimonial-text">I've been bringing my cats here for years. Always reliable, always compassionate. Highly recommended!</p>
+                    <div class="testimonial-author">Karim M.</div>
+                    <div class="testimonial-role">Cat Owner</div>
+                </div>
+                <div class="testimonial-item">
+                    <div class="testimonial-quote">"</div>
+                    <p class="testimonial-text">The emergency service saved my parrot's life. I'm forever grateful to the team at Clinique Elita.</p>
+                    <div class="testimonial-author">Amina K.</div>
+                    <div class="testimonial-role">Bird Owner</div>
+                </div>
+            </div>
+        </div>
+        <div class="testimonial-dots" id="testimonialDots">
+            <button class="active" data-index="0"></button>
+            <button data-index="1"></button>
+            <button data-index="2"></button>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">Featured Products</h2>
+        <p class="section-subtitle">Popular items from our pet shop</p>
+        <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;">
+            {% if products %}
+                {% for product in products %}
+                <div class="card" style="padding:0;overflow:hidden;">
+                    <div style="height:200px;background:linear-gradient(135deg,var(--light-gray),#e2e8f0);display:flex;align-items:center;justify-content:center;position:relative;">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width:100%;height:100%;object-fit:cover;">
+                        {% else %}
+                        <span style="font-size:3.5rem;color:var(--sky-blue);opacity:0.5;"><i class="fas fa-box-open"></i></span>
+                        {% endif %}
+                        {% if product.stock == 0 %}
+                        <span class="product-stock-badge badge-danger" style="top:10px;right:10px;">Sold Out</span>
+                        {% elif product.stock < 5 %}
+                        <span class="product-stock-badge badge-warning" style="top:10px;right:10px;">Low Stock</span>
+                        {% endif %}
+                    </div>
+                    <div style="padding:1rem 1.2rem 1.2rem;">
+                        <div style="font-size:0.72rem;font-weight:600;color:var(--sky-blue);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.25rem;">{{ product.category.name }}</div>
+                        <h4 style="font-weight:600;margin-bottom:0.35rem;font-size:0.95rem;">{{ product.name }}</h4>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+                            <span style="font-weight:700;font-size:1.05rem;color:var(--dark-blue);">{{ product.price }} DZD</span>
+                            <span style="font-size:0.8rem;color:#f59e0b;">★ {{ product.rating|floatformat:"1" }}</span>
+                        </div>
+                        <a href="{% url 'product_detail' product.id %}" class="btn btn-outline btn-sm" style="width:100%;margin-top:0.5rem;font-size:0.8rem;">View Details</a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div style="text-align:center;margin-top:2rem;">
+            <a href="{% url 'shop' %}" class="btn btn-primary">Browse All Products</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Animated counters
+const counters = document.querySelectorAll('.stat-number');
+const animateCounter = (el) => {
+    const target = parseInt(el.getAttribute('data-target'));
+    const duration = 2000;
+    const start = performance.now();
+    const step = (timestamp) => {
+        const progress = Math.min((timestamp - start) / duration, 1);
+        el.textContent = Math.floor(progress * target).toLocaleString() + (target >= 1000 ? '+' : '');
+        if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+};
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            animateCounter(entry.target);
+            observer.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.5 });
+counters.forEach(c => observer.observe(c));
+
+// Testimonials
+let currentSlide = 0;
+const track = document.getElementById('testimonialTrack');
+const dots = document.querySelectorAll('#testimonialDots button');
+function goToSlide(n) {
+    currentSlide = n;
+    track.style.transform = `translateX(-${n * 100}%)`;
+    dots.forEach((d, i) => d.classList.toggle('active', i === n));
+}
+dots.forEach(d => d.addEventListener('click', () => goToSlide(parseInt(d.dataset.index))));
+setInterval(() => goToSlide((currentSlide + 1) % 3), 5000);
+</script>
+{% endblock %}

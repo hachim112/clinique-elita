@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %} - Shopping Cart{% endblock %}
+{% block content %}
+<style>
+.cart-table { width: 100%; border-collapse: collapse; }
+.cart-table th { text-align: left; padding: 12px; border-bottom: 2px solid #e5e7eb; }
+.cart-table td { padding: 12px; border-bottom: 1px solid #f3f4f6; }
+.cart-item-img {
+    width: 60px; height: 60px;
+    border-radius: 10px;
+    background: var(--light-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+.qty-control { display: flex; align-items: center; gap: 8px; }
+.qty-btn-small {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 2px solid #e5e7eb;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+.qty-btn-small:hover { background: var(--sky-blue); color: white; }
+.cart-summary {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+}
+.empty-cart { text-align: center; padding: 4rem 2rem; }
+@media (max-width: 768px) {
+    .cart-table thead { display: none; }
+    .cart-table tr { display: block; margin-bottom: 1rem; border: 1px solid #e5e7eb; border-radius: var(--radius-sm); padding: 1rem; }
+    .cart-table td { display: flex; justify-content: space-between; }
+    .cart-table td::before { content: attr(data-label); font-weight: 600; }
+}
+</style>
+<div class="container" style="padding-top: 3rem;">
+    <h1 class="section-title">Shopping Cart</h1>
+    {% if items %}
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:2rem;align-items:start;">
+        <div class="card" style="padding:0;overflow:hidden;">
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td data-label="Product">
+                            <div style="display:flex;gap:1rem;align-items:center;">
+                                <div class="cart-item-img"><i class="fas fa-box" style="color:var(--sky-blue);"></i></div>
+                                <span>{{ item.product.name }}</span>
+                            </div>
+                        </td>
+                        <td data-label="Price">{{ item.product.price }} DZD</td>
+                        <td data-label="Quantity">
+                            <div class="qty-control">
+                                <form method="post" action="{% url 'update_cart_item' item.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="decrease">
+                                    <button type="submit" class="qty-btn-small">−</button>
+                                </form>
+                                <span>{{ item.quantity }}</span>
+                                <form method="post" action="{% url 'update_cart_item' item.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="increase">
+                                    <button type="submit" class="qty-btn-small">+</button>
+                                </form>
+                            </div>
+                        </td>
+                        <td data-label="Total">{{ item.total_price }} DZD</td>
+                        <td data-label="">
+                            <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-outline btn-sm btn-danger" onclick="return confirm('Remove item?')"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="cart-summary">
+            <h3 style="margin-bottom:1rem;">Order Summary</h3>
+            <div style="display:flex;justify-content:space-between;padding:0.8rem 0;border-bottom:1px solid #f3f4f6;">
+                <span>Subtotal</span>
+                <strong>{{ total }} DZD</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.8rem 0;border-bottom:1px solid #f3f4f6;">
+                <span>Shipping</span>
+                <strong style="color:#10b981;">Free</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:1rem 0;font-size:1.2rem;font-weight:700;">
+                <span>Total</span>
+                <span>{{ total }} DZD</span>
+            </div>
+            <a href="{% url 'checkout' %}" class="btn btn-primary" style="width:100%;margin-top:1rem;">Proceed to Checkout</a>
+            <a href="{% url 'shop' %}" class="btn btn-outline" style="width:100%;margin-top:0.8rem;">Continue Shopping</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="card empty-cart">
+        <div style="font-size:4rem;color:var(--sky-blue);"><i class="fas fa-shopping-cart"></i></div>
+        <h3>Your cart is empty</h3>
+        <p style="color:var(--text-light);">Looks like you haven't added any products yet.</p>
+        <a href="{% url 'shop' %}" class="btn btn-primary" style="margin-top:1rem;">Browse Products</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

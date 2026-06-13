@@ -53,7 +53,20 @@ def run_vercel_setup():
         return
 
     django.setup()
-    Path(settings.BASE_DIR).mkdir(parents=True, exist_ok=True)
-    Path(settings.MEDIA_ROOT).mkdir(parents=True, exist_ok=True)
+    
+    import tempfile
+    from pathlib import Path
+    from importlib import reload
+    from django.conf import settings
+    media_root = Path(tempfile.gettempdir()) / 'media'
+    settings.MEDIA_ROOT = media_root
+    settings.MEDIA_URL = '/media/'
+    settings.STATIC_ROOT = Path(settings.BASE_DIR) / 'staticfiles'
+    settings.STATICFILES_DIRS = [Path(settings.BASE_DIR) / 'static']
+    settings.STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
+    media_root.mkdir(parents=True, exist_ok=True)
+    (media_root / 'categories').mkdir(parents=True, exist_ok=True)
+    (media_root / 'products').mkdir(parents=True, exist_ok=True)
+    
     _run_migrations()
     _ensure_default_admin()

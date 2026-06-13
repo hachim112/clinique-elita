@@ -22,31 +22,31 @@
         <nav>
             <div class="nav-section">Main</div>
             <ul style="list-style:none;padding:0;margin:0;">
-                <li><a href="{% url 'admin_dashboard' %}" class="{% if 'admin_dashboard' in request.path %}active{% endif %}" data-icon="📊">
+                <li><a href="{% url 'admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" data-icon="📊">
                     <span class="nav-icon">📊</span><span>Dashboard</span>
                 </a></li>
             </ul>
             <div class="nav-section">Management</div>
             <ul style="list-style:none;padding:0;margin:0;">
-                <li><a href="{% url 'admin_appointments' %}" class="{% if 'admin_appointments' in request.path %}active{% endif %}" data-icon="📅">
+                <li><a href="{% url 'admin_appointments' %}" class="{% if request.resolver_match.url_name == 'admin_appointments' %}active{% endif %}" data-icon="📅">
                     <span class="nav-icon">📅</span><span>Appointments</span>
                 </a></li>
-                <li><a href="{% url 'admin_products' %}" class="{% if 'admin_products' in request.path %}active{% endif %}" data-icon="📦">
+                <li><a href="{% url 'admin_products' %}" class="{% if request.resolver_match.url_name == 'admin_products' or request.resolver_match.url_name == 'admin_edit_product' or request.resolver_match.url_name == 'admin_delete_product' or request.resolver_match.url_name == 'admin_toggle_product' %}active{% endif %}" data-icon="📦">
                     <span class="nav-icon">📦</span><span>Products</span>
                 </a></li>
-                <li><a href="{% url 'admin_orders' %}" class="{% if 'admin_orders' in request.path %}active{% endif %}" data-icon="🛒">
+                <li><a href="{% url 'admin_orders' %}" class="{% if request.resolver_match.url_name == 'admin_orders' %}active{% endif %}" data-icon="🛒">
                     <span class="nav-icon">🛒</span><span>Orders</span>
                 </a></li>
-                <li><a href="{% url 'admin_categories' %}" class="{% if 'admin_categories' in request.path %}active{% endif %}" data-icon="📁">
+                <li><a href="{% url 'admin_categories' %}" class="{% if request.resolver_match.url_name == 'admin_categories' or request.resolver_match.url_name == 'admin_edit_category' or request.resolver_match.url_name == 'admin_delete_category' %}active{% endif %}" data-icon="📁">
                     <span class="nav-icon">📁</span><span>Categories</span>
                 </a></li>
-                <li><a href="{% url 'admin_customers' %}" class="{% if 'admin_customers' in request.path %}active{% endif %}" data-icon="👥">
+                <li><a href="{% url 'admin_customers' %}" class="{% if request.resolver_match.url_name == 'admin_customers' %}active{% endif %}" data-icon="👥">
                     <span class="nav-icon">👥</span><span>Customers</span>
                 </a></li>
             </ul>
             <div class="nav-section">Communication</div>
             <ul style="list-style:none;padding:0;margin:0;">
-                <li><a href="{% url 'admin_contact_messages' %}" class="{% if 'admin_contact_messages' in request.path %}active{% endif %}" data-icon="💬">
+                <li><a href="{% url 'admin_contact_messages' %}" class="{% if request.resolver_match.url_name == 'admin_contact_messages' %}active{% endif %}" data-icon="💬">
                     <span class="nav-icon">💬</span><span>Messages</span>
                     {% if unread_messages_count > 0 %}
                     <span class="nav-badge">{{ unread_messages_count }}</span>

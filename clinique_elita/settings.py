@@ -1,8 +1,17 @@
 import os
+import shutil
+import tempfile
 from pathlib import Path
 import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+if os.environ.get('VERCEL') and not os.environ.get('DATABASE_URL'):
+    vercel_db_path = Path(tempfile.gettempdir()) / 'clinique_elita.sqlite3'
+    bundled_db = BASE_DIR / 'db.sqlite3'
+    if bundled_db.exists() and not vercel_db_path.exists():
+        shutil.copy2(bundled_db, vercel_db_path)
+    os.environ['DATABASE_URL'] = f'sqlite:///{vercel_db_path}'
 
 SECRET_KEY = os.environ.get('SECRET_KEY') or os.environ.get('DJANGO_SECRET_KEY') or 'django-insecure-change-me-in-production'
 DEBUG = os.environ.get('DEBUG', 'False').lower() in ('1', 'true', 'yes')
@@ -11,11 +20,15 @@ ALLOWED_HOSTS = [
     for host in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,.vercel.app').split(',')
     if host.strip()
 ]
+if os.environ.get('VERCEL') and not os.environ.get('ALLOWED_HOSTS'):
+    ALLOWED_HOSTS.append('*')
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://*.vercel.app').split(',')
     if origin.strip()
 ]
+if os.environ.get('VERCEL') and not os.environ.get('CSRF_TRUSTED_ORIGINS'):
+    CSRF_TRUSTED_ORIGINS.append('https://*')
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

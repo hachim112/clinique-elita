@@ -366,6 +366,60 @@
         .back-to-top.visible { opacity: 1; transform: translateY(0); }
         .back-to-top:hover { transform: translateY(-3px); }
 
+        /* Badge styles */
+        .badge-success { background: rgba(16,185,129,0.9); color: white; }
+        .badge-warning { background: rgba(245,158,11,0.9); color: white; }
+        .badge-danger { background: rgba(239,68,68,0.9); color: white; }
+        .badge-info { background: rgba(59,130,246,0.9); color: white; }
+        .product-stock-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        .cart-item-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            background: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .qty-btn-small {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #e5e7eb;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .qty-btn-small:hover { background: var(--sky-blue); color: white; }
+        .cart-summary {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+        .badge {
+            display: inline-block;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
         /* ========== UTILITY ========== */
         .container {
             max-width: 1280px;
@@ -410,8 +464,6 @@
 
         /* ========== MESSAGES ========== */
         .messages {
-            padding: 0;
-            margin: 0;
             list-style: none;
             max-width: 1280px;
             margin: 0 auto;

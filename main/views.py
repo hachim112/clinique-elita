@@ -30,14 +30,15 @@ from .forms import (
 def get_or_create_cart(request):
     """Get or create cart for user or guest."""
     if request.user.is_authenticated:
-        cart, created = Cart.objects.get_or_create(user=request.user)
+        cart = Cart.objects.filter(user=request.user).order_by('-created_at').first()
+        if not cart:
+            cart = Cart.objects.create(user=request.user)
     else:
         if not request.session.session_key:
             request.session.create()
-        cart, created = Cart.objects.get_or_create(
-            session_key=request.session.session_key,
-            defaults={'user': None}
-        )
+        cart = Cart.objects.filter(session_key=request.session.session_key).order_by('-created_at').first()
+        if not cart:
+            cart = Cart.objects.create(session_key=request.session.session_key, user=None)
     return cart
 
 

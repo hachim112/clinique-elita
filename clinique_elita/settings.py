@@ -97,7 +97,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 if os.environ.get('VERCEL'):
     MEDIA_ROOT = Path(tempfile.gettempdir()) / 'media'
-    MEDIA_URL = '/media/'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 

@@ -63,11 +63,9 @@ def _bundle_static_media_into_tmp():
     media_root.mkdir(parents=True, exist_ok=True)
 
     seed_root = Path(settings.BASE_DIR) / 'static' / 'seed'
-    if not seed_root.exists():
-        return
-
-    _copy_seed_dir(seed_root / 'categories', media_root / 'categories')
-    _copy_seed_dir(seed_root / 'products', media_root / 'products')
+    if seed_root.exists():
+        _copy_seed_dir(seed_root / 'categories', media_root / 'categories')
+        _copy_seed_dir(seed_root / 'products', media_root / 'products')
 
 
 def run_vercel_setup():

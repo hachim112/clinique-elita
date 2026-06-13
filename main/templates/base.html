@@ -172,6 +172,36 @@
             color: white;
         }
         .btn-warning:hover { background: #d97706; }
+        
+        /* Form controls */
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            background: white;
+            transition: var(--transition);
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--sky-blue);
+            box-shadow: 0 0 0 3px rgba(78, 168, 222, 0.2);
+        }
+        [data-theme="dark"] .form-control {
+            background: #1a1a2e;
+            border-color: #374151;
+            color: white;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+        }
 
         /* Dark mode toggle */
         .theme-toggle {

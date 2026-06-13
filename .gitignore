@@ -32,10 +32,10 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
-# Media files (user uploads) - use Cloudinary/S3 in production
+# Media files (user uploads) - local dev only; production seeds live in static/seed/
 media/
 
-# Static files (collected)
+# Static files (collected at build time)
 staticfiles/
 
 # IDE

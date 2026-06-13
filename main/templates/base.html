@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clinique Elita{% block title %}{% endblock %}</title>
+    <link rel="icon" href="{% static 'img/logo/elita-logo.png' %}" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -490,7 +491,7 @@
     <nav class="navbar">
         <div class="nav-container">
             <a href="{% url 'home' %}" class="nav-brand">
-                <div class="brand-icon"><img src="{% static 'images/elita-logo.png' %}" alt="Clinique Elita"></div>
+                <div class="brand-icon"><img src="{% static 'img/logo/elita-logo.png' %}" alt="Clinique Elita"></div>
                 <span>Clinique Elita</span>
             </a>
             <ul class="nav-links" id="navLinks">

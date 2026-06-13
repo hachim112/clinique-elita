@@ -28,7 +28,7 @@
             <input type="file" name="image" class="form-control">
             {% if category.image %}
             <div style="margin-top:0.75rem;">
-                <img src="{{ category.image.url }}" style="width:70px;height:70px;border-radius:10px;object-fit:cover;box-shadow:var(--shadow);">
+                <img src="{{ category.image|media_url }}" style="width:70px;height:70px;border-radius:10px;object-fit:cover;box-shadow:var(--shadow);">
                 <p style="font-size:0.78rem;color:var(--text-light);margin-top:4px;">Current image</p>
             </div>
             {% endif %}

@@ -64,14 +64,16 @@ class _VercelMediaMiddleware:
             return self._app(environ, start_response)
         
         relative = path[len(self._media_url) + 1:]
-        filepath = os.path.normpath(os.path.join(self._media_root, unquote(relative)))
-        
-        if not filepath.startswith(self._media_root) or not os.path.isfile(filepath):
+        filepath = Path(self._media_root) / unquote(relative)
+        filepath = filepath.resolve()
+        media_root = Path(self._media_root).resolve()
+
+        if not str(filepath).startswith(str(media_root)) or not filepath.is_file():
             start_response('404 Not Found', [('Content-Type', 'text/plain')])
             return [b'Not Found']
         
-        content_type = self._guess_type(filepath)
-        result = self._serve_file(filepath, content_type)
+        content_type = self._guess_type(str(filepath))
+        result = self._serve_file(str(filepath), content_type)
         if result is None:
             start_response('403 Forbidden', [('Content-Type', 'text/plain')])
             return [b'Forbidden']

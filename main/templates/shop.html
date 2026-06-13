@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load media_extras %}
 {% block title %} - Pet Shop{% endblock %}
 {% block content %}
 <style>
@@ -263,7 +264,7 @@
                 <li>
                     <a href="?category={{ cat.id }}&sort={{ sort_by }}&q={{ search_query }}" class="{% if selected_category|add:0 == cat.id %}active{% endif %}">
                         {% if cat.image %}
-                        <img src="{{ cat.image.url }}" alt="{{ cat.name }}" class="sidebar-cat-thumb">
+                        <img src="{{ cat.image|media_url }}" alt="{{ cat.name }}" class="sidebar-cat-thumb">
                         {% else %}
                         <div class="sidebar-cat-icon">📁</div>
                         {% endif %}
@@ -310,7 +311,7 @@
                 <div class="product-card">
                     <div class="product-img-wrap">
                         {% if product.image %}
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                        <img src="{{ product.image|media_url }}" alt="{{ product.name }}" loading="lazy">
                         {% else %}
                         <span class="product-img-icon"><i class="fas fa-box-open"></i></span>
                         {% endif %}

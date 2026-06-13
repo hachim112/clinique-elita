@@ -49,33 +49,25 @@ def _ensure_default_admin():
     user.save()
 
 
-def _bundle_static_media_into_tmp():
-    from pathlib import Path
-    from django.conf import settings
+def _copy_seed_dir(seed_dir, media_dir):
+    if not seed_dir.is_dir():
+        return
+    media_dir.mkdir(parents=True, exist_ok=True)
+    for item in seed_dir.iterdir():
+        if item.is_file() and not (media_dir / item.name).exists():
+            shutil.copy2(item, media_dir / item.name)
 
+
+def _bundle_static_media_into_tmp():
     media_root = Path(settings.MEDIA_ROOT)
     media_root.mkdir(parents=True, exist_ok=True)
-    (media_root / 'categories').mkdir(parents=True, exist_ok=True)
-    (media_root / 'products').mkdir(parents=True, exist_ok=True)
 
-    bundled = Path(settings.BASE_DIR) / 'staticfiles' / 'images'
-    if not bundled.exists():
+    seed_root = Path(settings.BASE_DIR) / 'static' / 'seed'
+    if not seed_root.exists():
         return
 
-    tmp_categories = media_root / 'categories'
-    tmp_products = media_root / 'products'
-
-    bundled_categories = bundled / 'categories'
-    if bundled_categories.exists() and bundled_categories.is_dir():
-        for f in bundled_categories.iterdir():
-            if f.is_file() and not (tmp_categories / f.name).exists():
-                shutil.copy2(str(f), str(tmp_categories / f.name))
-
-    bundled_products = bundled / 'products'
-    if bundled_products.exists() and bundled_products.is_dir():
-        for f in bundled_products.iterdir():
-            if f.is_file() and not (tmp_products / f.name).exists():
-                shutil.copy2(str(f), str(tmp_products / f.name))
+    _copy_seed_dir(seed_root / 'categories', media_root / 'categories')
+    _copy_seed_dir(seed_root / 'products', media_root / 'products')
 
 
 def run_vercel_setup():
@@ -85,6 +77,5 @@ def run_vercel_setup():
     django.setup()
 
     _bundle_static_media_into_tmp()
-
     _run_migrations()
     _ensure_default_admin()

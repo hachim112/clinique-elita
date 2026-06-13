@@ -108,6 +108,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 if os.environ.get('VERCEL'):
     MEDIA_ROOT = Path('/tmp/media')
+    MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

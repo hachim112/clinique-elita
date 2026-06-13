@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.urls import path
 from django.shortcuts import redirect
+from django.conf.urls.static import static
+from django.conf import settings
 from main import views
 
 # Override Django admin login to redirect to our shared login page
@@ -57,3 +59,6 @@ urlpatterns = [
     path('panel/messages/', views.admin_contact_messages_view, name='admin_contact_messages'),
     path('admin/', admin.site.urls),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

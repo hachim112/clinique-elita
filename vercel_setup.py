@@ -54,5 +54,6 @@ def run_vercel_setup():
 
     django.setup()
     Path(settings.BASE_DIR).mkdir(parents=True, exist_ok=True)
+    Path(settings.MEDIA_ROOT).mkdir(parents=True, exist_ok=True)
     _run_migrations()
     _ensure_default_admin()

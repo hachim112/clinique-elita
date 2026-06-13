@@ -15,6 +15,10 @@
       "dest": "/staticfiles/$1"
     },
     {
+      "src": "/media/(.*)",
+      "dest": "/tmp/media/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "clinique_elita/wsgi.py"
     }

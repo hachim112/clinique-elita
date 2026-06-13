@@ -817,9 +817,16 @@ def admin_products_view(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Product added successfully!')
-            return redirect('admin_products')
+            try:
+                form.save()
+                messages.success(request, 'Product added successfully!')
+                return redirect('admin_products')
+            except Exception as e:
+                messages.error(request, f'Error adding product: {str(e)}')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     else:
         form = ProductForm()
 
@@ -929,9 +936,16 @@ def admin_categories_view(request):
     if request.method == 'POST':
         form = CategoryForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Category added successfully!')
-            return redirect('admin_categories')
+            try:
+                form.save()
+                messages.success(request, 'Category added successfully!')
+                return redirect('admin_categories')
+            except Exception as e:
+                messages.error(request, f'Error adding category: {str(e)}')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     else:
         form = CategoryForm()
 

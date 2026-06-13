@@ -2,7 +2,7 @@
   "buildCommand": "python manage.py collectstatic --noinput && python manage.py migrate --noinput",
   "functions": {
     "vercel_app.py": {
-      "runtime": "python3.12"
+      "runtime": "python@3.12"
     }
   }
 }

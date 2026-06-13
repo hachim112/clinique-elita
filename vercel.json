@@ -15,9 +15,6 @@
       "dest": "/staticfiles/$1"
     },
     {
-      "handle": "filesystem"
-    },
-    {
       "src": "/(.*)",
       "dest": "clinique_elita/wsgi.py"
     }

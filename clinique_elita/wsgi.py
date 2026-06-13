@@ -16,7 +16,6 @@ from urllib.parse import unquote
 
 from django.core.wsgi import get_wsgi_application
 from django.utils.http import http_date
-from django.utils.encoding import force_str
 from django.conf import settings
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'clinique_elita.settings')
@@ -28,6 +27,15 @@ from vercel_setup import run_vercel_setup
 run_vercel_setup()
 
 _original_app = get_wsgi_application()
+
+if os.environ.get('VERCEL'):
+    from whitenoise import WhiteNoise
+
+    _original_app = WhiteNoise(
+        _original_app,
+        root=str(settings.STATIC_ROOT),
+        prefix=settings.STATIC_URL,
+    )
 
 
 class _VercelMediaMiddleware:

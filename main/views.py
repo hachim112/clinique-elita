@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum, Count, Q, Value, BooleanField, Case, When
 from django.http import JsonResponse, Http404
 from django.utils import timezone
 from django.core.paginator import Paginator
@@ -165,7 +165,14 @@ def home_view(request):
     categories = Category.objects.filter(is_active=True).annotate(
         product_count=Count('products', filter=Q(products__is_available=True, products__is_hidden=False))
     ).order_by('-product_count')[:6]
-    products = Product.objects.filter(is_available=True, is_hidden=False).select_related('category')[:8]
+    new_threshold = timezone.now() - timedelta(days=7)
+    products = Product.objects.filter(is_available=True, is_hidden=False).select_related('category').annotate(
+        is_new=Case(
+            When(created_at__gte=new_threshold, then=Value(True)),
+            default=Value(False),
+            output_field=BooleanField()
+        )
+    )[:8]
 
     context = {
         'categories': categories,
@@ -202,19 +209,9 @@ def contact_view(request):
     return render(request, 'contact.html', {'form': form})
 
 
-def custom_404(request, exception):
-    return render(request, '404.html', status=404)
-
-
-def custom_500(request):
-    return render(request, '500.html', status=500)
-
-
 # ============================================================
 # APPOINTMENT VIEWS
 # ============================================================
-
-def is_sunday(d):
     return d.weekday() == 6
 
 
@@ -375,6 +372,15 @@ def pet_shop_view(request):
     if max_price:
         products = products.filter(price__lte=float(max_price))
 
+    new_threshold = timezone.now() - timedelta(days=7)
+    products = products.annotate(
+        is_new=Case(
+            When(created_at__gte=new_threshold, then=Value(True)),
+            default=Value(False),
+            output_field=BooleanField()
+        )
+    )
+
     if sort_by == 'price_low':
         products = products.order_by('price')
     elif sort_by == 'price_high':
@@ -402,10 +408,26 @@ def pet_shop_view(request):
 
 def product_detail_view(request, product_id):
     """Single product detail page."""
-    product = get_object_or_404(Product, id=product_id, is_available=True, is_hidden=False)
+    new_threshold = timezone.now() - timedelta(days=7)
+    product = get_object_or_404(
+        Product.objects.select_related('category').annotate(
+            is_new=Case(
+                When(created_at__gte=new_threshold, then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField()
+            )
+        ),
+        id=product_id, is_available=True, is_hidden=False
+    )
     related = Product.objects.filter(
         category=product.category, is_available=True, is_hidden=False
-    ).exclude(id=product.id)[:4]
+    ).exclude(id=product.id).annotate(
+        is_new=Case(
+            When(created_at__gte=new_threshold, then=Value(True)),
+            default=Value(False),
+            output_field=BooleanField()
+        )
+    )[:4]
 
     context = {
         'product': product,
@@ -931,7 +953,9 @@ def admin_orders_view(request):
 @user_passes_test(is_admin)
 def admin_categories_view(request):
     """Admin category management."""
-    categories = Category.objects.all().order_by('name')
+    categories = Category.objects.all().order_by('name').annotate(
+        product_count=Count('products')
+    )
 
     if request.method == 'POST':
         form = CategoryForm(request.POST, request.FILES)
@@ -966,6 +990,10 @@ def admin_edit_category_view(request, category_id):
             form.save()
             messages.success(request, 'Category updated successfully!')
             return redirect('admin_categories')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     else:
         form = CategoryForm(instance=category)
 
@@ -1032,6 +1060,128 @@ def admin_contact_messages_view(request):
         return redirect('admin_contact_messages')
 
     return render(request, 'admin/admin_contact_messages.html', {'page_obj': page_obj})
+
+
+@user_passes_test(is_admin)
+def admin_animal_profiles_view(request):
+    """Admin animal profiles management."""
+    animal_profiles = AnimalProfile.objects.all().select_related('user').order_by('-created_at')
+
+    search_query = request.GET.get('q', '')
+    if search_query:
+        animal_profiles = animal_profiles.filter(
+            Q(name__icontains=search_query) |
+            Q(species__icontains=search_query) |
+            Q(breed__icontains=search_query) |
+            Q(user__username__icontains=search_query) |
+            Q(user__first_name__icontains=search_query) |
+            Q(user__last_name__icontains=search_query)
+        )
+
+    species_filter = request.GET.get('species', '')
+    if species_filter:
+        animal_profiles = animal_profiles.filter(species=species_filter)
+
+    paginator = Paginator(animal_profiles, 20)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    species_choices = AnimalProfile.SPECIES_CHOICES
+
+    context = {
+        'page_obj': page_obj,
+        'search_query': search_query,
+        'species_filter': species_filter,
+        'species_choices': species_choices,
+        'total_profiles': AnimalProfile.objects.count(),
+    }
+    return render(request, 'admin/admin_animal_profiles.html', context)
+
+
+@user_passes_test(is_admin)
+def admin_edit_animal_profile_view(request, profile_id):
+    """Edit animal profile."""
+    profile = get_object_or_404(AnimalProfile, id=profile_id)
+
+    if request.method == 'POST':
+        form = AnimalProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Profile for {profile.name} updated successfully!')
+            return redirect('admin_animal_profiles')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+    else:
+        form = AnimalProfileForm(instance=profile)
+
+    return render(request, 'admin/admin_edit_animal_profile.html', {
+        'form': form,
+        'profile': profile,
+    })
+
+
+@user_passes_test(is_admin)
+def admin_delete_animal_profile_view(request, profile_id):
+    """Delete animal profile."""
+    profile = get_object_or_404(AnimalProfile, id=profile_id)
+    profile.delete()
+    messages.success(request, 'Animal profile deleted successfully.')
+    return redirect('admin_animal_profiles')
+
+
+@user_passes_test(is_admin)
+def admin_profile_view(request):
+    """Admin profile settings page."""
+    user = request.user
+    profile = getattr(user, 'profile', None)
+
+    if request.method == 'POST':
+        user.first_name = request.POST.get('first_name', '')
+        user.last_name = request.POST.get('last_name', '')
+        user.email = request.POST.get('email', '')
+        user.save()
+
+        if profile:
+            profile.phone = request.POST.get('phone', '')
+            profile.address = request.POST.get('address', '')
+            profile.save()
+
+        new_password = request.POST.get('new_password', '')
+        if new_password:
+            user.set_password(new_password)
+            user.save()
+
+        messages.success(request, 'Profile updated successfully!')
+        return redirect('admin_profile')
+
+    return render(request, 'admin/admin_profile.html', {
+        'user': user,
+        'profile': profile,
+    })
+
+
+@user_passes_test(is_admin)
+def admin_sessions_view(request):
+    """Admin sessions management - view user statistics."""
+    from django.contrib.auth.models import User
+    total_users = User.objects.count()
+    total_staff = User.objects.filter(is_staff=True).count()
+    superusers = User.objects.filter(is_superuser=True).count()
+    active_today = User.objects.filter(last_login__date=timezone.now().date()).count()
+    week_ago = timezone.now() - timedelta(days=7)
+    active_week = User.objects.filter(last_login__gte=week_ago).count()
+    staff_users = User.objects.filter(is_staff=True).order_by('-date_joined')
+
+    context = {
+        'total_users': total_users,
+        'total_staff': total_staff,
+        'superusers': superusers,
+        'active_today': active_today,
+        'active_week': active_week,
+        'staff_users': staff_users,
+    }
+    return render(request, 'admin/admin_sessions.html', context)
 
 
 # ============================================================

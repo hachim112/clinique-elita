@@ -59,6 +59,11 @@ urlpatterns = [
     path('panel/categories/delete/<int:category_id>/', views.admin_delete_category_view, name='admin_delete_category'),
     path('panel/customers/', views.admin_customers_view, name='admin_customers'),
     path('panel/messages/', views.admin_contact_messages_view, name='admin_contact_messages'),
+    path('panel/animals/', views.admin_animal_profiles_view, name='admin_animal_profiles'),
+    path('panel/animals/edit/<int:profile_id>/', views.admin_edit_animal_profile_view, name='admin_edit_animal_profile'),
+    path('panel/animals/delete/<int:profile_id>/', views.admin_delete_animal_profile_view, name='admin_delete_animal_profile'),
+    path('panel/profile/', views.admin_profile_view, name='admin_profile'),
+    path('panel/sessions/', views.admin_sessions_view, name='admin_sessions'),
     path('admin/', admin.site.urls),
 ]
 

@@ -1,7 +1,16 @@
 from pathlib import Path
+from urllib.parse import quote
 
 from django.conf import settings
 from django.templatetags.static import static
+
+
+PLACEHOLDER_SVG = (
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' "
+    "viewBox='0 0 100 100'%3E%3Crect fill='%23f5f7fa' width='100' height='100'/%3E"
+    "%3Ctext x='50' y='50' text-anchor='middle' dy='.35em' fill='%239ca3af' "
+    "font-family='sans-serif' font-size='12'%3ENo Image%3C/text%3E%3C/svg%3E"
+)
 
 
 def resolve_media_url(image_field):
@@ -13,12 +22,14 @@ def resolve_media_url(image_field):
     if not name:
         return ''
 
-    media_path = Path(settings.MEDIA_ROOT) / name
+    normalized_name = name.replace(chr(92), '/')
+
+    media_path = Path(settings.MEDIA_ROOT) / normalized_name
     if media_path.is_file():
         return image_field.url
 
-    seed_path = Path(settings.BASE_DIR) / 'static' / 'seed' / Path(name)
+    seed_path = Path(settings.BASE_DIR) / 'static' / 'seed' / normalized_name
     if seed_path.is_file():
-        return static(f'seed/{name.replace(chr(92), "/")}')
+        return static(f'seed/{normalized_name}')
 
-    return image_field.url
+    return PLACEHOLDER_SVG

@@ -139,11 +139,63 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.5s ease;
+}
+.product-card:hover .product-img-wrap img {
+    transform: scale(1.08);
 }
 .product-img-icon {
     font-size: 3.5rem;
     color: var(--sky-blue);
     opacity: 0.5;
+}
+.product-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    z-index: 2;
+}
+.badge-new { background: var(--sky-blue); color: white; }
+.product-stock-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    z-index: 2;
+}
+.quick-add-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(18, 52, 88, 0.85);
+    padding: 10px;
+    display: flex;
+    gap: 8px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    z-index: 3;
+}
+.product-card:hover .quick-add-overlay {
+    transform: translateY(0);
+}
+.quick-add-overlay .btn {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    padding: 6px 10px;
 }
 .product-body {
     padding: 1rem 1.2rem 1.2rem;
@@ -315,11 +367,23 @@
                         {% else %}
                         <span class="product-img-icon"><i class="fas fa-box-open"></i></span>
                         {% endif %}
+                        {% if product.is_new %}
+                        <span class="product-badge badge-new">New</span>
+                        {% endif %}
                         {% if product.stock == 0 %}
                         <span class="product-stock-badge badge-danger">Out of Stock</span>
                         {% elif product.stock < 5 %}
                         <span class="product-stock-badge badge-warning">Low Stock</span>
                         {% endif %}
+                        <div class="quick-add-overlay">
+                            <a href="{% url 'product_detail' product.id %}" class="btn btn-outline btn-sm" style="color:white;border-color:white;">Quick View</a>
+                            <form method="post" action="{% url 'add_to_cart' product.id %}" style="flex:1;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary btn-sm" style="width:100%;" {% if product.stock < 1 %}disabled{% endif %}>
+                                    {% if product.stock > 0 %}<i class="fas fa-cart-plus"></i> Add{% else %}Sold Out{% endif %}
+                                </button>
+                            </form>
+                        </div>
                     </div>
                     <div class="product-body">
                         <div class="product-category-tag">{{ product.category.name }}</div>

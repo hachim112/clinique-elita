@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from .models import (
     Profile, Appointment, Category, Product, Cart, CartItem,
     Order, OrderItem, ContactMessage, AnimalProfile
@@ -34,21 +35,39 @@ class AppointmentAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['name', 'is_active', 'created_at']
+    list_display = ['name', 'is_active', 'created_at', 'image_thumb']
     list_filter = ['is_active']
     search_fields = ['name']
     prepopulated_fields = {'slug': ('name',)}
+
+    def image_thumb(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" style="width:44px;height:44px;border-radius:10px;object-fit:cover;box-shadow:var(--shadow);" />',
+                obj.image.url
+            )
+        return format_html('<div style="width:44px;height:44px;border-radius:10px;background:var(--light-gray);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">📁</div>')
+    image_thumb.short_description = 'Image'
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = [
         'name', 'category', 'price', 'stock',
-        'rating', 'is_available', 'is_hidden', 'updated_at'
+        'rating', 'is_available', 'is_hidden', 'updated_at', 'image_thumb'
     ]
     list_filter = ['category', 'is_available', 'is_hidden']
     search_fields = ['name', 'description']
     ordering = ['-created_at']
+
+    def image_thumb(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" style="width:48px;height:48px;border-radius:10px;object-fit:cover;box-shadow:var(--shadow);" />',
+                obj.image.url
+            )
+        return format_html('<div style="width:48px;height:48px;border-radius:10px;background:var(--light-gray);display:flex;align-items:center;justify-content:center;font-size:1.4rem;">📦</div>')
+    image_thumb.short_description = 'Image'
 
 
 @admin.register(Cart)

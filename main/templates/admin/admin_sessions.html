@@ -1,0 +1,64 @@
+{% extends 'admin/admin_base.html' %}
+{% block title %} - Sessions{% endblock %}
+{% block admin_content %}
+<div class="page-header">
+    <div>
+        <h2>System & Sessions</h2>
+        <p class="page-subtitle">System overview and user activity statistics</p>
+    </div>
+</div>
+<div class="stats-grid">
+    <div class="stat-card info">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value">{{ total_users }}</div>
+        <div class="stat-label">Total Users</div>
+    </div>
+    <div class="stat-card success">
+        <div class="stat-icon">🔑</div>
+        <div class="stat-value">{{ total_staff }}</div>
+        <div class="stat-label">Staff Users</div>
+    </div>
+    <div class="stat-card warning">
+        <div class="stat-icon">👑</div>
+        <div class="stat-value">{{ superusers }}</div>
+        <div class="stat-label">Superusers</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-value">{{ active_today }}</div>
+        <div class="stat-label">Active Today</div>
+    </div>
+    <div class="stat-card success">
+        <div class="stat-icon">📆</div>
+        <div class="stat-value">{{ active_week }}</div>
+        <div class="stat-label">Active This Week</div>
+    </div>
+</div>
+<div class="card card-p-0">
+    <div class="card-header">
+        <h3>📋 Staff Members</h3>
+    </div>
+    <table class="admin-table">
+        <thead><tr><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Joined</th></tr></thead>
+        <tbody>
+            {% for staff_user in staff_users %}
+            <tr>
+                <td><strong>{{ staff_user.username }}</strong></td>
+                <td>{{ staff_user.get_full_name|default:"—" }}</td>
+                <td>{{ staff_user.email }}</td>
+                <td>
+                    {% if staff_user.is_superuser %}
+                    <span class="admin-badge badge-danger">Superuser</span>
+                    {% else %}
+                    <span class="admin-badge badge-info">Staff</span>
+                    {% endif %}
+                </td>
+                <td style="color:var(--text-light);">{{ staff_user.date_joined|date:"M d, Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">👥</div><h4>No staff members</h4></div></td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

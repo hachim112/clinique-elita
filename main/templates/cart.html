@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load media_extras %}
 {% block title %} - Shopping Cart{% endblock %}
 {% block content %}
 <style>
@@ -61,7 +62,13 @@
                     <tr>
                         <td data-label="Product">
                             <div style="display:flex;gap:1rem;align-items:center;">
-                                <div class="cart-item-img"><i class="fas fa-box" style="color:var(--sky-blue);"></i></div>
+                                <div class="cart-item-img">
+                                    {% if item.product.image %}
+                                    <img src="{{ item.product.image|media_url }}" alt="{{ item.product.name }}" style="width:60px;height:60px;border-radius:10px;object-fit:cover;">
+                                    {% else %}
+                                    <i class="fas fa-box" style="color:var(--sky-blue);"></i>
+                                    {% endif %}
+                                </div>
                                 <span>{{ item.product.name }}</span>
                             </div>
                         </td>

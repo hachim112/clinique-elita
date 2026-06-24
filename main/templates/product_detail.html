@@ -178,13 +178,16 @@
         <span style="color:var(--text-dark);font-weight:500;">{{ product.name }}</span>
     </div>
     <div class="product-detail">
-        <div class="product-main-img">
-            {% if product.image %}
-            <img src="{{ product.image|media_url }}" alt="{{ product.name }}">
-            {% else %}
-            <span class="product-main-icon"><i class="fas fa-box-open"></i></span>
-            {% endif %}
-        </div>
+    <div class="product-main-img">
+        {% if product.image %}
+        <img src="{{ product.image|media_url }}" alt="{{ product.name }}">
+        {% else %}
+        <span class="product-main-icon"><i class="fas fa-box-open"></i></span>
+        {% endif %}
+        {% if product.is_new %}
+        <span class="product-badge badge-new" style="top:10px;left:10px;">New</span>
+        {% endif %}
+    </div>
         <div class="product-info">
             <div class="product-category-label">{{ product.category.name }}</div>
             <h1>{{ product.name }}</h1>
@@ -239,6 +242,9 @@
                     <img src="{{ p.image|media_url }}" alt="{{ p.name }}" loading="lazy">
                     {% else %}
                     <span class="related-img-icon"><i class="fas fa-box-open"></i></span>
+                    {% endif %}
+                    {% if p.is_new %}
+                    <span class="product-badge badge-new" style="top:10px;left:10px;font-size:0.65rem;">New</span>
                     {% endif %}
                 </div>
                 <div class="related-body">

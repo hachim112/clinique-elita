@@ -784,6 +784,9 @@
                 <li><a href="{% url 'admin_categories' %}" class="{% if request.resolver_match.url_name == 'admin_categories' or request.resolver_match.url_name == 'admin_edit_category' or request.resolver_match.url_name == 'admin_delete_category' %}active{% endif %}" data-icon="📁">
                     <span class="nav-icon">📁</span><span>Categories</span>
                 </a></li>
+                <li><a href="{% url 'admin_animal_profiles' %}" class="{% if request.resolver_match.url_name == 'admin_animal_profiles' or request.resolver_match.url_name == 'admin_edit_animal_profile' or request.resolver_match.url_name == 'admin_delete_animal_profile' %}active{% endif %}" data-icon="🐾">
+                    <span class="nav-icon">🐾</span><span>Animal Profiles</span>
+                </a></li>
                 <li><a href="{% url 'admin_customers' %}" class="{% if request.resolver_match.url_name == 'admin_customers' %}active{% endif %}" data-icon="👥">
                     <span class="nav-icon">👥</span><span>Customers</span>
                 </a></li>
@@ -795,6 +798,15 @@
                     {% if unread_messages_count > 0 %}
                     <span class="nav-badge">{{ unread_messages_count }}</span>
                     {% endif %}
+                </a></li>
+            </ul>
+            <div class="nav-section">Account</div>
+            <ul style="list-style:none;padding:0;margin:0;">
+                <li><a href="{% url 'admin_profile' %}" class="{% if request.resolver_match.url_name == 'admin_profile' %}active{% endif %}" data-icon="⚙️">
+                    <span class="nav-icon">⚙️</span><span>My Profile</span>
+                </a></li>
+                <li><a href="{% url 'admin_sessions' %}" class="{% if request.resolver_match.url_name == 'admin_sessions' %}active{% endif %}" data-icon="👥">
+                    <span class="nav-icon">👥</span><span>Sessions</span>
                 </a></li>
             </ul>
             <div class="nav-section">System</div>

@@ -1,0 +1,69 @@
+{% extends 'admin/admin_base.html' %}
+{% block title %} - Edit Animal Profile{% endblock %}
+{% block admin_content %}
+<div class="page-header">
+    <div>
+        <h2>Edit Animal Profile</h2>
+        <p class="page-subtitle">Profile of {{ profile.name }} owned by {{ profile.user.get_full_name|default:profile.user.username }}</p>
+    </div>
+    <a href="{% url 'admin_animal_profiles' %}" class="btn btn-outline">← Back to Profiles</a>
+</div>
+<div class="card" style="padding:2rem;max-width:600px;">
+    {% if form.non_field_errors %}
+    <div class="alert alert-error" style="margin-bottom:1rem;">
+        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+    </div>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label><strong>Pet Name</strong></label>
+            <input type="text" name="name" required value="{{ profile.name }}" class="form-control">
+            {% if form.name.errors %}<span class="field-error">{{ form.name.errors.0 }}</span>{% endif %}
+        </div>
+        <div class="form-group">
+            <label><strong>Species</strong></label>
+            <select name="species" class="form-control">
+                {% for val, label in profile.SPECIES_CHOICES %}
+                <option value="{{ val }}" {% if profile.species == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            {% if form.species.errors %}<span class="field-error">{{ form.species.errors.0 }}</span>{% endif %}
+        </div>
+        <div class="form-group">
+            <label><strong>Breed</strong></label>
+            <input type="text" name="breed" value="{{ profile.breed|default:'' }}" class="form-control">
+            {% if form.breed.errors %}<span class="field-error">{{ form.breed.errors.0 }}</span>{% endif %}
+        </div>
+        <div class="form-group">
+            <label><strong>Weight</strong></label>
+            <input type="text" name="weight" value="{{ profile.weight|default:'' }}" class="form-control">
+        </div>
+        <div class="form-group">
+            <label><strong>Age</strong></label>
+            <input type="text" name="age" value="{{ profile.age|default:'' }}" class="form-control">
+        </div>
+        <div class="form-group">
+            <label><strong>Gender</strong></label>
+            <select name="gender" class="form-control">
+                <option value="">Select</option>
+                {% for val, label in profile.GENDER_CHOICES %}
+                <option value="{{ val }}" {% if profile.gender == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label><strong>Vaccination History</strong></label>
+            <textarea name="vaccination_history" rows="3" class="form-control">{{ profile.vaccination_history|default:'' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label><strong>Medical Notes</strong></label>
+            <textarea name="medical_notes" rows="3" class="form-control">{{ profile.medical_notes|default:'' }}</textarea>
+        </div>
+        <div style="display:flex;gap:1rem;margin-top:1rem;">
+            <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+            <a href="{% url 'admin_animal_profiles' %}" class="btn btn-outline">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

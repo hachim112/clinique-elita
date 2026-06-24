@@ -1,0 +1,58 @@
+{% extends 'admin/admin_base.html' %}
+{% block title %} - My Profile{% endblock %}
+{% block admin_content %}
+<div class="page-header">
+    <div>
+        <h2>My Profile</h2>
+        <p class="page-subtitle">Manage your admin account settings</p>
+    </div>
+</div>
+<div class="card" style="padding:2rem;max-width:600px;">
+    <form method="post" style="display:flex;flex-direction:column;gap:1rem;">
+        {% csrf_token %}
+        <div class="form-group">
+            <label><strong>Full Name</strong></label>
+            <input type="text" name="first_name" required value="{{ user.first_name }}" class="form-control" placeholder="First name">
+            <input type="text" name="last_name" value="{{ user.last_name }}" class="form-control" placeholder="Last name" style="margin-top:0.5rem;">
+        </div>
+        <div class="form-group">
+            <label><strong>Email</strong></label>
+            <input type="email" name="email" required value="{{ user.email }}" class="form-control">
+        </div>
+        <div class="form-group">
+            <label><strong>Phone</strong></label>
+            <input type="text" name="phone" value="{{ profile.phone|default:'' }}" class="form-control">
+        </div>
+        <div class="form-group">
+            <label><strong>Address</strong></label>
+            <textarea name="address" rows="2" class="form-control">{{ profile.address|default:'' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label><strong>New Password</strong> <span style="font-weight:400;color:var(--text-light);">(leave blank to keep current)</span></label>
+            <input type="password" name="new_password" class="form-control" placeholder="Enter new password">
+        </div>
+        <button type="submit" class="btn btn-primary">💾 Update Profile</button>
+    </form>
+</div>
+<div class="card" style="padding:1.5rem;margin-top:1.5rem;max-width:600px;">
+    <h3 style="font-size:0.9rem;color:var(--text-light);font-weight:500;margin-bottom:0.75rem;">Account Details</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;font-size:0.9rem;">
+        <div>
+            <p style="color:var(--text-light);margin-bottom:0.25rem;">Username</p>
+            <strong>{{ user.username }}</strong>
+        </div>
+        <div>
+            <p style="color:var(--text-light);margin-bottom:0.25rem;">Role</p>
+            <strong>{% if user.is_superuser %}Superuser{% else %}Staff{% endif %}</strong>
+        </div>
+        <div>
+            <p style="color:var(--text-light);margin-bottom:0.25rem;">Joined</p>
+            <strong>{{ user.date_joined|date:"M d, Y" }}</strong>
+        </div>
+        <div>
+            <p style="color:var(--text-light);margin-bottom:0.25rem;">Last Login</p>
+            <strong>{% if user.last_login %}{{ user.last_login|date:"M d, Y H:i" }}{% else %}Never{% endif %}</strong>
+        </div>
+    </div>
+</div>
+{% endblock %}

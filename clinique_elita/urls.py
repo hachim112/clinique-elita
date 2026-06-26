@@ -30,6 +30,7 @@ urlpatterns = [
     path('appointments/cancel/<int:appt_id>/', views.cancel_appointment_view, name='cancel_appointment'),
     path('appointments/track/', views.track_appointment_view, name='track_appointment'),
     path('ajax/available-slots/', views.get_available_slots_ajax, name='get_available_slots_ajax'),
+    path('ajax/communes/<str:wilaya_code>/', views.get_communes_ajax, name='get_communes_ajax'),
     path('shop/', views.pet_shop_view, name='shop'),
     path('pet-shop/', views.pet_shop_view, name='pet_shop'),
     path('product/<int:product_id>/', views.product_detail_view, name='product_detail'),
@@ -38,6 +39,7 @@ urlpatterns = [
     path('cart/update/<int:item_id>/', views.update_cart_item, name='update_cart_item'),
     path('cart/remove/<int:item_id>/', views.remove_from_cart, name='remove_from_cart'),
     path('ajax/add-to-cart/<int:product_id>/', views.add_to_cart_ajax, name='add_to_cart_ajax'),
+    path('buy/<int:product_id>/', views.direct_buy_view, name='direct_buy'),
     path('ajax/search-products/', views.search_products_ajax, name='search_products_ajax'),
     path('checkout/', views.checkout_view, name='checkout'),
     path('orders/', views.my_orders_view, name='my_orders'),
@@ -58,15 +60,19 @@ urlpatterns = [
     path('panel/categories/edit/<int:category_id>/', views.admin_edit_category_view, name='admin_edit_category'),
     path('panel/categories/delete/<int:category_id>/', views.admin_delete_category_view, name='admin_delete_category'),
     path('panel/customers/', views.admin_customers_view, name='admin_customers'),
+    path('panel/customers/<int:user_id>/', views.admin_customer_detail_view, name='admin_customer_detail'),
     path('panel/messages/', views.admin_contact_messages_view, name='admin_contact_messages'),
-    path('panel/animals/', views.admin_animal_profiles_view, name='admin_animal_profiles'),
-    path('panel/animals/edit/<int:profile_id>/', views.admin_edit_animal_profile_view, name='admin_edit_animal_profile'),
-    path('panel/animals/delete/<int:profile_id>/', views.admin_delete_animal_profile_view, name='admin_delete_animal_profile'),
+    path('panel/testimonials/', views.admin_testimonials_view, name='admin_testimonials'),
+    path('panel/testimonials/delete/<int:testimonial_id>/', views.admin_delete_testimonial_view, name='admin_delete_testimonial'),
+    path('panel/testimonials/toggle/<int:testimonial_id>/', views.admin_toggle_testimonial_view, name='admin_toggle_testimonial'),
     path('panel/profile/', views.admin_profile_view, name='admin_profile'),
     path('panel/sessions/', views.admin_sessions_view, name='admin_sessions'),
     path('admin/', admin.site.urls),
 ]
 
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', static_serve, {'document_root': settings.MEDIA_ROOT}),
+]
+
 if settings.DEBUG or os.environ.get('VERCEL'):
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

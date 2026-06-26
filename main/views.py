@@ -14,7 +14,7 @@ import string
 
 from .models import (
     Profile, Appointment, Category, Product, Cart, CartItem,
-    Order, OrderItem, ContactMessage, AnimalProfile
+    Order, OrderItem, ContactMessage, AnimalProfile, Testimonial
 )
 from .forms import (
     CustomUserCreationForm, AppointmentForm, GuestAppointmentForm,
@@ -174,9 +174,12 @@ def home_view(request):
         )
     )[:8]
 
+    testimonials = Testimonial.objects.filter(is_active=True).order_by('-created_at')[:6]
+
     context = {
         'categories': categories,
         'products': products,
+        'testimonials': testimonials,
     }
     return render(request, 'home.html', context)
 
@@ -432,6 +435,7 @@ def product_detail_view(request, product_id):
     context = {
         'product': product,
         'related': related,
+        'wilaya_choices': Order.WILAYA_CHOICES,
     }
     return render(request, 'product_detail.html', context)
 
@@ -442,95 +446,27 @@ def product_detail_view(request, product_id):
 
 @login_required
 def cart_view(request):
-    """Shopping cart page for logged-in users."""
-    cart = get_or_create_cart(request)
-    items = cart.items.select_related('product').all()
-
-    for item in items:
-        item.total_price = item.product.price * item.quantity
-
-    context = {
-        'items': items,
-        'total': cart.total,
-        'item_count': cart.item_count,
-    }
-    return render(request, 'cart.html', context)
-
-
-def add_to_cart(request, product_id):
-    """Add product to cart."""
-    if request.method != 'POST':
-        return redirect('shop')
-
-    product = get_object_or_404(Product, id=product_id, is_available=True, is_hidden=False)
-
-    if product.stock < 1:
-        messages.error(request, 'This product is out of stock.')
-        return redirect('shop')
-
-    cart = get_or_create_cart(request)
-    cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-
-    if not created:
-        if cart_item.quantity < product.stock:
-            cart_item.quantity += 1
-            cart_item.save()
-            messages.success(request, f'Quantity updated for {product.name}.')
-        else:
-            messages.error(request, 'Cannot add more. Stock limit reached.')
-    else:
-        messages.success(request, f'{product.name} added to cart.')
-
-    if request.user.is_authenticated:
-        return redirect('cart')
+    """Cart page - redirects to shop since cart is no longer used."""
+    messages.info(request, 'The cart has been removed. Please use the Buy Now button to order products directly.')
     return redirect('shop')
 
 
+def add_to_cart(request, product_id):
+    """Redirect to product detail - cart removed."""
+    messages.info(request, 'Please use the Buy Now button on the product page to place your order directly.')
+    return redirect('product_detail', product_id=product_id)
+
+
 def update_cart_item(request, item_id):
-    """Update cart item quantity."""
-    if request.method != 'POST':
-        return redirect('cart')
-
-    cart_item = get_object_or_404(CartItem, id=item_id)
-    cart = cart_item.cart
-
-    if request.user.is_authenticated:
-        if cart.user != request.user:
-            messages.error(request, 'Unauthorized.')
-            return redirect('cart')
-    elif request.session.session_key != cart.session_key:
-        messages.error(request, 'Unauthorized.')
-        return redirect('cart')
-
-    action = request.POST.get('action', '')
-    if action == 'increase':
-        if cart_item.quantity < cart_item.product.stock:
-            cart_item.quantity += 1
-            cart_item.save()
-    elif action == 'decrease':
-        if cart_item.quantity > 1:
-            cart_item.quantity -= 1
-            cart_item.save()
-        else:
-            cart_item.delete()
-            messages.info(request, 'Item removed from cart.')
-
-    return redirect('cart')
+    """Redirect to shop - cart removed."""
+    messages.info(request, 'The cart has been removed. Please use the Buy Now button to order products directly.')
+    return redirect('shop')
 
 
 def remove_from_cart(request, item_id):
-    """Remove item from cart."""
-    cart_item = get_object_or_404(CartItem, id=item_id)
-    cart = cart_item.cart
-
-    if request.user.is_authenticated:
-        if cart.user != request.user:
-            messages.error(request, 'Unauthorized.')
-            return redirect('cart')
-
-    cart_item.delete()
-    messages.success(request, 'Item removed from cart.')
-    return redirect('cart')
+    """Redirect to shop - cart removed."""
+    messages.info(request, 'The cart has been removed. Please use the Buy Now button to order products directly.')
+    return redirect('shop')
 
 
 # ============================================================
@@ -618,6 +554,88 @@ def order_tracking_view(request, order_id):
 
     context = {'order': order}
     return render(request, 'order_tracking.html', context)
+
+
+def direct_buy_view(request, product_id):
+    """Direct buy: create order from product detail page without cart."""
+    product = get_object_or_404(Product, id=product_id, is_available=True, is_hidden=False)
+
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        wilaya = request.POST.get('wilaya', '').strip()
+        commune = request.POST.get('commune', '').strip()
+        address = request.POST.get('address', '').strip()
+        quantity = request.POST.get('quantity', '1')
+
+        errors = []
+        if not first_name:
+            errors.append('First name is required.')
+        if not last_name:
+            errors.append('Last name is required.')
+        if not phone:
+            errors.append('Phone number is required.')
+        if not wilaya:
+            errors.append('Wilaya is required.')
+        if not commune:
+            errors.append('Commune is required.')
+        if not address:
+            errors.append('Address is required.')
+
+        try:
+            quantity = int(quantity)
+            if quantity < 1:
+                errors.append('Quantity must be at least 1.')
+            elif quantity > product.stock:
+                errors.append(f'Only {product.stock} items available.')
+        except ValueError:
+            errors.append('Invalid quantity.')
+            quantity = 1
+
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            context = {
+                'product': product,
+                'errors': errors,
+                'data': request.POST,
+                'wilaya_choices': Order.WILAYA_CHOICES,
+            }
+            return render(request, 'product_detail.html', context)
+
+        full_name = f'{first_name} {last_name}'
+        total = product.price * quantity
+
+        order = Order(
+            user=request.user if request.user.is_authenticated else None,
+            guest_name=full_name,
+            guest_phone=phone,
+            guest_email=request.user.email if request.user.is_authenticated else '',
+            wilaya=wilaya,
+            commune=commune,
+            address=address,
+            delivery_type='home',
+            total_price=total,
+            order_id=generate_order_id(),
+        )
+        order.save()
+
+        OrderItem.objects.create(
+            order=order,
+            product=product,
+            product_name=product.name,
+            product_price=product.price,
+            quantity=quantity,
+        )
+
+        product.stock -= quantity
+        product.save()
+
+        messages.success(request, f'Order {order.order_id} placed successfully! We will contact you soon.')
+        return redirect('order_tracking', order_id=order.id)
+
+    return redirect('product_detail', product_id=product.id)
 
 
 # ============================================================
@@ -828,6 +846,14 @@ def admin_products_view(request):
     if category_filter:
         products = products.filter(category_id=category_filter)
 
+    stock_filter = request.GET.get('stock', '')
+    if stock_filter == 'out':
+        products = products.filter(stock=0)
+    elif stock_filter == 'low':
+        products = products.filter(stock__gt=0, stock__lt=5)
+    elif stock_filter == 'good':
+        products = products.filter(stock__gte=5)
+
     search_query = request.GET.get('q', '')
     if search_query:
         products = products.filter(name__icontains=search_query)
@@ -856,6 +882,7 @@ def admin_products_view(request):
         'page_obj': page_obj,
         'categories': categories,
         'category_filter': category_filter,
+        'stock_filter': stock_filter,
         'search_query': search_query,
         'form': form,
     })
@@ -1038,6 +1065,27 @@ def admin_customers_view(request):
 
 
 @user_passes_test(is_admin)
+def admin_customer_detail_view(request, user_id):
+    """Admin customer detail with appointments and orders."""
+    user = get_object_or_404(User, id=user_id)
+    appointments = Appointment.objects.filter(user=user).order_by('-date', '-time')[:20]
+    orders = Order.objects.filter(user=user).order_by('-created_at')[:20]
+    total_appointments = Appointment.objects.filter(user=user).count()
+    total_orders = Order.objects.filter(user=user).count()
+    total_spent = Order.objects.filter(user=user).aggregate(Sum('total_price'))['total_price__sum'] or 0
+
+    context = {
+        'customer': user,
+        'appointments': appointments,
+        'orders': orders,
+        'total_appointments': total_appointments,
+        'total_orders': total_orders,
+        'total_spent': total_spent,
+    }
+    return render(request, 'admin/admin_customer_detail.html', context)
+
+
+@user_passes_test(is_admin)
 def admin_contact_messages_view(request):
     """Admin contact messages."""
     messages_list = ContactMessage.objects.all().order_by('-created_at')
@@ -1056,6 +1104,21 @@ def admin_contact_messages_view(request):
         elif action == 'delete':
             msg.delete()
             messages.success(request, 'Message deleted.')
+        elif action == 'share_testimonial':
+            testimonial, created = Testimonial.objects.get_or_create(
+                name=msg.name,
+                message=msg.message,
+                defaults={
+                    'is_from_message': True,
+                    'original_message': msg,
+                    'role': '',
+                    'is_active': True,
+                }
+            )
+            if created:
+                messages.success(request, 'Message shared to Testimonials!')
+            else:
+                messages.info(request, 'This message is already in Testimonials.')
 
         return redirect('admin_contact_messages')
 
@@ -1063,71 +1126,52 @@ def admin_contact_messages_view(request):
 
 
 @user_passes_test(is_admin)
-def admin_animal_profiles_view(request):
-    """Admin animal profiles management."""
-    animal_profiles = AnimalProfile.objects.all().select_related('user').order_by('-created_at')
-
-    search_query = request.GET.get('q', '')
-    if search_query:
-        animal_profiles = animal_profiles.filter(
-            Q(name__icontains=search_query) |
-            Q(species__icontains=search_query) |
-            Q(breed__icontains=search_query) |
-            Q(user__username__icontains=search_query) |
-            Q(user__first_name__icontains=search_query) |
-            Q(user__last_name__icontains=search_query)
-        )
-
-    species_filter = request.GET.get('species', '')
-    if species_filter:
-        animal_profiles = animal_profiles.filter(species=species_filter)
-
-    paginator = Paginator(animal_profiles, 20)
-    page_obj = paginator.get_page(request.GET.get('page'))
-
-    species_choices = AnimalProfile.SPECIES_CHOICES
-
-    context = {
-        'page_obj': page_obj,
-        'search_query': search_query,
-        'species_filter': species_filter,
-        'species_choices': species_choices,
-        'total_profiles': AnimalProfile.objects.count(),
-    }
-    return render(request, 'admin/admin_animal_profiles.html', context)
-
-
-@user_passes_test(is_admin)
-def admin_edit_animal_profile_view(request, profile_id):
-    """Edit animal profile."""
-    profile = get_object_or_404(AnimalProfile, id=profile_id)
+def admin_testimonials_view(request):
+    """Admin testimonials management."""
+    testimonials = Testimonial.objects.all().order_by('-created_at')
 
     if request.method == 'POST':
-        form = AnimalProfileForm(request.POST, instance=profile)
-        if form.is_valid():
-            form.save()
-            messages.success(request, f'Profile for {profile.name} updated successfully!')
-            return redirect('admin_animal_profiles')
-        else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field}: {error}')
-    else:
-        form = AnimalProfileForm(instance=profile)
+        name = request.POST.get('name', '').strip()
+        role = request.POST.get('role', '').strip()
+        message = request.POST.get('message', '').strip()
+        is_active = request.POST.get('is_active') == 'on'
 
-    return render(request, 'admin/admin_edit_animal_profile.html', {
-        'form': form,
-        'profile': profile,
-    })
+        if name and message:
+            Testimonial.objects.create(
+                name=name,
+                role=role,
+                message=message,
+                is_active=is_active,
+            )
+            messages.success(request, 'Testimonial added successfully!')
+            return redirect('admin_testimonials')
+        else:
+            messages.error(request, 'Name and message are required.')
+
+    context = {
+        'testimonials': testimonials,
+    }
+    return render(request, 'admin/admin_testimonials.html', context)
 
 
 @user_passes_test(is_admin)
-def admin_delete_animal_profile_view(request, profile_id):
-    """Delete animal profile."""
-    profile = get_object_or_404(AnimalProfile, id=profile_id)
-    profile.delete()
-    messages.success(request, 'Animal profile deleted successfully.')
-    return redirect('admin_animal_profiles')
+def admin_delete_testimonial_view(request, testimonial_id):
+    """Delete testimonial."""
+    testimonial = get_object_or_404(Testimonial, id=testimonial_id)
+    testimonial.delete()
+    messages.success(request, 'Testimonial deleted successfully.')
+    return redirect('admin_testimonials')
+
+
+@user_passes_test(is_admin)
+def admin_toggle_testimonial_view(request, testimonial_id):
+    """Toggle testimonial visibility."""
+    testimonial = get_object_or_404(Testimonial, id=testimonial_id)
+    testimonial.is_active = not testimonial.is_active
+    testimonial.save()
+    status = 'visible' if testimonial.is_active else 'hidden'
+    messages.success(request, f'Testimonial is now {status}.')
+    return redirect('admin_testimonials')
 
 
 @user_passes_test(is_admin)
@@ -1147,10 +1191,24 @@ def admin_profile_view(request):
             profile.address = request.POST.get('address', '')
             profile.save()
 
+        old_password = request.POST.get('old_password', '')
         new_password = request.POST.get('new_password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+
         if new_password:
+            if not old_password:
+                messages.error(request, 'Please enter your current password to change it.')
+                return redirect('admin_profile')
+            if not user.check_password(old_password):
+                messages.error(request, 'Current password is incorrect.')
+                return redirect('admin_profile')
+            if new_password != confirm_password:
+                messages.error(request, 'New passwords do not match.')
+                return redirect('admin_profile')
             user.set_password(new_password)
             user.save()
+            messages.success(request, 'Password updated successfully! Please log in again with your new password.')
+            return redirect('login')
 
         messages.success(request, 'Profile updated successfully!')
         return redirect('admin_profile')
@@ -1203,23 +1261,26 @@ def search_products_ajax(request):
 
 
 def add_to_cart_ajax(request, product_id):
-    """AJAX add to cart."""
-    product = get_object_or_404(Product, id=product_id, is_available=True, is_hidden=False)
-    if product.stock < 1:
-        return JsonResponse({'success': False, 'message': 'Out of stock.'})
-
-    cart = get_or_create_cart(request)
-    cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-
-    if not created:
-        if cart_item.quantity < product.stock:
-            cart_item.quantity += 1
-            cart_item.save()
-        else:
-            return JsonResponse({'success': False, 'message': 'Stock limit reached.'})
-
+    """AJAX add to cart - redirects to product page since cart is removed."""
     return JsonResponse({
-        'success': True,
-        'message': f'{product.name} added to cart.',
-        'cart_count': cart.item_count,
+        'success': False,
+        'message': 'Cart removed. Please use the Buy Now button on the product page.',
+        'redirect': True,
     })
+
+
+def get_communes_ajax(request, wilaya_code):
+    """AJAX endpoint to get communes for a given wilaya code."""
+    import json
+    import os
+    from django.conf import settings
+
+    json_path = os.path.join(settings.BASE_DIR, 'main', 'static', 'data', 'algeria_communes.json')
+    try:
+        with open(json_path, 'r', encoding='utf-8') as f:
+            communes_map = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return JsonResponse({'communes': []})
+
+    communes = communes_map.get(str(wilaya_code), [])
+    return JsonResponse({'communes': communes})

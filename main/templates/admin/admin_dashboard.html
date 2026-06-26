@@ -65,7 +65,11 @@
             {% for order in recent_orders %}
             <tr>
                 <td><strong>#{{ order.order_id }}</strong></td>
-                <td>{{ order.guest_name|default:order.user.get_full_name|default:"Guest" }}</td>
+                <td>
+                    {% if order.guest_name %}{{ order.guest_name }}
+                    {% elif order.user %}{{ order.user.get_full_name|default:order.user.username }}
+                    {% else %}Guest{% endif %}
+                </td>
                 <td><strong>{{ order.total_price }} DZD</strong></td>
                 <td>
                     <span class="admin-badge

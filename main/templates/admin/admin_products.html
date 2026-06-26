@@ -1,10 +1,23 @@
 {% extends 'admin/admin_base.html' %}
+{% load media_extras %}
 {% block title %} - Manage Products{% endblock %}
 {% block admin_content %}
 <div class="page-header">
     <div>
         <h2>Manage Products</h2>
         <p class="page-subtitle">Manage your pet shop inventory and product catalog</p>
+    </div>
+</div>
+<div class="stats-grid" style="margin-bottom:1.5rem;">
+    <div class="stat-card info">
+        <div class="stat-icon">📦</div>
+        <div class="stat-value">{{ page_obj.paginator.count }}</div>
+        <div class="stat-label">Total Products</div>
+    </div>
+    <div class="stat-card success">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">{{ page_obj.object_list|length }}</div>
+        <div class="stat-label">Showing</div>
     </div>
 </div>
 <div class="filter-bar">
@@ -14,13 +27,22 @@
         <option value="{{ cat.id }}" {% if category_filter == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
         {% endfor %}
     </select>
+    <select onchange="location.href='?stock='+this.value" class="form-control" style="min-width:160px;padding:9px 14px;">
+        <option value="">All Stock Levels</option>
+        <option value="out" {% if stock_filter == 'out' %}selected{% endif %}>🔴 Out of Stock</option>
+        <option value="low" {% if stock_filter == 'low' %}selected{% endif %}>🟡 Low Stock (1-4)</option>
+        <option value="good" {% if stock_filter == 'good' %}selected{% endif %}>🟢 In Stock (5+)</option>
+    </select>
     <form method="get" style="display:flex;gap:8px;flex:1;">
-        <input type="text" name="q" value="{{ search_query }}" placeholder="Search products..." class="form-control" style="min-width:220px;">
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search by name or description..." class="form-control" style="min-width:220px;">
         <button type="submit" class="btn btn-primary btn-sm">🔍 Search</button>
+        {% if search_query or category_filter or stock_filter %}
+        <a href="{% url 'admin_products' %}" class="btn btn-outline btn-sm">✕ Reset</a>
+        {% endif %}
     </form>
 </div>
-<div class="card" style="padding:1.75rem;margin-bottom:2rem;max-width:600px;">
-    <h3 style="margin-bottom:1.25rem;">➕ Add Product</h3>
+<div class="card" style="padding:1.75rem;margin-bottom:2rem;max-width:700px;">
+    <h3 style="margin-bottom:1.25rem;">➕ Add New Product</h3>
     {% if form.non_field_errors %}
     <div class="alert alert-error" style="margin-bottom:1rem;">
         {% for error in form.non_field_errors %}{{ error }}{% endfor %}
@@ -28,60 +50,66 @@
     {% endif %}
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <div class="form-group">
-            <label><strong>Name</strong></label>
-            <input type="text" name="name" required class="form-control" placeholder="Product name" value="{{ form.name.value|default:'' }}">
-            {% if form.name.errors %}<span class="field-error">{{ form.name.errors.0 }}</span>{% endif %}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="form-group">
+                <label><strong>Product Name *</strong></label>
+                <input type="text" name="name" required class="form-control" placeholder="e.g., Premium Dog Food" value="{{ form.name.value|default:'' }}">
+                {% if form.name.errors %}<span class="field-error">{{ form.name.errors.0 }}</span>{% endif %}
+            </div>
+            <div class="form-group">
+                <label><strong>Category *</strong></label>
+                <select name="category" required class="form-control">
+                    <option value="">Select Category</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if form.category.value == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.category.errors %}<span class="field-error">{{ form.category.errors.0 }}</span>{% endif %}
+            </div>
         </div>
         <div class="form-group">
             <label><strong>Description</strong></label>
-            <textarea name="description" rows="3" class="form-control" placeholder="Product description...">{{ form.description.value|default:'' }}</textarea>
+            <textarea name="description" rows="3" class="form-control" placeholder="Describe the product features, ingredients, usage...">{{ form.description.value|default:'' }}</textarea>
             {% if form.description.errors %}<span class="field-error">{{ form.description.errors.0 }}</span>{% endif %}
         </div>
-        <div class="form-group">
-            <label><strong>Price (DZD)</strong></label>
-            <input type="number" name="price" required class="form-control" step="0.01" min="0" placeholder="0.00" value="{{ form.price.value|default:'' }}">
-            {% if form.price.errors %}<span class="field-error">{{ form.price.errors.0 }}</span>{% endif %}
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+            <div class="form-group">
+                <label><strong>Price (DZD) *</strong></label>
+                <input type="number" name="price" required class="form-control" step="0.01" min="0" placeholder="0.00" value="{{ form.price.value|default:'' }}">
+                {% if form.price.errors %}<span class="field-error">{{ form.price.errors.0 }}</span>{% endif %}
+            </div>
+            <div class="form-group">
+                <label><strong>Stock Quantity *</strong></label>
+                <input type="number" name="stock" required class="form-control" min="0" value="{{ form.stock.value|default:0 }}">
+                {% if form.stock.errors %}<span class="field-error">{{ form.stock.errors.0 }}</span>{% endif %}
+            </div>
+            <div class="form-group">
+                <label><strong>Rating (0-5)</strong></label>
+                <input type="number" name="rating" class="form-control" step="0.01" min="0" max="5" value="{{ form.rating.value|default:0 }}">
+                {% if form.rating.errors %}<span class="field-error">{{ form.rating.errors.0 }}</span>{% endif %}
+            </div>
         </div>
         <div class="form-group">
-            <label><strong>Stock</strong></label>
-            <input type="number" name="stock" required class="form-control" min="0" value="{{ form.stock.value|default:0 }}">
-            {% if form.stock.errors %}<span class="field-error">{{ form.stock.errors.0 }}</span>{% endif %}
-        </div>
-        <div class="form-group">
-            <label><strong>Category</strong></label>
-            <select name="category" required class="form-control">
-                <option value="">Select Category</option>
-                {% for cat in categories %}
-                <option value="{{ cat.id }}" {% if form.category.value == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
-                {% endfor %}
-            </select>
-            {% if form.category.errors %}<span class="field-error">{{ form.category.errors.0 }}</span>{% endif %}
-        </div>
-        <div class="form-group">
-            <label><strong>Image</strong></label>
+            <label><strong>Product Image</strong></label>
             <input type="file" name="image" class="form-control" accept="image/*">
             {% if form.image.errors %}<span class="field-error">{{ form.image.errors.0 }}</span>{% endif %}
         </div>
-        <div class="form-group">
-            <label><strong>Rating (0.00 - 5.00)</strong></label>
-            <input type="number" name="rating" class="form-control" step="0.01" min="0" max="5" value="{{ form.rating.value|default:0 }}">
-            {% if form.rating.errors %}<span class="field-error">{{ form.rating.errors.0 }}</span>{% endif %}
+        <div style="display:flex;gap:1.5rem;">
+            <div class="form-group">
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                    <input type="checkbox" name="is_available" {% if form.is_available.value|default_if_none:True %}checked{% endif %}> <strong>Available</strong>
+                </label>
+                {% if form.is_available.errors %}<span class="field-error">{{ form.is_available.errors.0 }}</span>{% endif %}
+            </div>
+            <div class="form-group">
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                    <input type="checkbox" name="is_hidden" {% if form.is_hidden.value %}checked{% endif %}> <strong>Hidden</strong>
+                    <span style="font-weight:400;color:var(--text-light);">(hide from shop)</span>
+                </label>
+                {% if form.is_hidden.errors %}<span class="field-error">{{ form.is_hidden.errors.0 }}</span>{% endif %}
+            </div>
         </div>
-        <div class="form-group">
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-                <input type="checkbox" name="is_available" {% if form.is_available.value|default_if_none:True %}checked{% endif %}> <strong>Available</strong>
-            </label>
-            {% if form.is_available.errors %}<span class="field-error">{{ form.is_available.errors.0 }}</span>{% endif %}
-        </div>
-        <div class="form-group">
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-                <input type="checkbox" name="is_hidden" {% if form.is_hidden.value %}checked{% endif %}> <strong>Hidden</strong>
-                <span style="font-weight:400;color:var(--text-light);">(won't show in shop)</span>
-            </label>
-            {% if form.is_hidden.errors %}<span class="field-error">{{ form.is_hidden.errors.0 }}</span>{% endif %}
-        </div>
-        <button type="submit" class="btn btn-primary">Add Product</button>
+        <button type="submit" class="btn btn-primary">➕ Add Product</button>
     </form>
 </div>
 <div class="card card-p-0">
@@ -91,47 +119,53 @@
     </div>
     <div style="overflow-x:auto;">
     <table class="admin-table">
-        <thead><tr><th></th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+        <thead><tr><th></th><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Updated</th><th>Actions</th></tr></thead>
         <tbody>
             {% for product in page_obj %}
             <tr>
                 <td>
-                    <div style="width:48px;height:48px;border-radius:10px;background:var(--light-gray);display:flex;align-items:center;justify-content:center;font-size:1.4rem;">
+                    <div style="width:48px;height:48px;border-radius:10px;background:var(--light-gray);display:flex;align-items:center;justify-content:center;font-size:1.4rem;overflow:hidden;">
                         {% if product.image %}
-                        <img src="{{ product.image|media_url }}" style="width:48px;height:48px;border-radius:10px;object-fit:cover;">
+                        <img src="{{ product.image|media_url }}" style="width:48px;height:48px;border-radius:10px;object-fit:cover;" alt="{{ product.name }}">
                         {% else %}📦{% endif %}
                     </div>
                 </td>
-                <td><strong>{{ product.name }}</strong></td>
+                <td>
+                    <div style="font-weight:600;">{{ product.name }}</div>
+                    {% if product.description %}
+                    <div style="font-size:0.75rem;color:var(--text-light);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ product.description|truncatechars:60 }}</div>
+                    {% endif %}
+                    <div style="font-size:0.7rem;color:var(--sky-blue);">⭐ {{ product.rating|floatformat:"1" }} rating</div>
+                </td>
                 <td>{{ product.category.name }}</td>
                 <td><strong>{{ product.price }} DZD</strong></td>
                 <td>
                     <span class="admin-badge {% if product.stock == 0 %}badge-danger{% elif product.stock < 5 %}badge-warning{% else %}badge-success{% endif %}">
-                        {{ product.stock }}
+                        {{ product.stock }} units
                     </span>
                 </td>
                 <td>
                     {% if product.is_hidden %}
-                    <span class="admin-badge badge-warning">Hidden</span>
+                    <span class="admin-badge badge-warning">👁️‍🗨️ Hidden</span>
                     {% elif product.stock == 0 %}
-                    <span class="admin-badge badge-danger">Out of Stock</span>
+                    <span class="admin-badge badge-danger">⛔ Out of Stock</span>
                     {% else %}
-                    <span class="admin-badge badge-success">Active</span>
+                    <span class="admin-badge badge-success">🟢 Active</span>
                     {% endif %}
                 </td>
-                <td style="color:var(--text-light);font-size:0.85rem;">{{ product.created_at|date:"M d, Y" }}</td>
+                <td style="color:var(--text-light);font-size:0.85rem;">{{ product.updated_at|date:"M d, Y" }}</td>
                 <td>
                     <div class="actions-cell">
-                        <a href="{% url 'admin_edit_product' product.id %}" class="btn btn-outline btn-sm btn-icon" title="Edit">✏️</a>
-                        <a href="{% url 'admin_toggle_product' product.id %}" class="btn btn-sm btn-icon {% if product.is_hidden %}btn-success{% else %}btn-warning{% endif %}" title="{{ product.is_hidden|yesno:'Show,Hide' }}">
+                        <a href="{% url 'admin_edit_product' product.id %}" class="btn btn-outline btn-sm btn-icon" title="Edit Product">✏️</a>
+                        <a href="{% url 'admin_toggle_product' product.id %}" class="btn btn-sm btn-icon {% if product.is_hidden %}btn-success{% else %}btn-warning{% endif %}" title="{{ product.is_hidden|yesno:'Show product,Hide product' }}">
                             {{ product.is_hidden|yesno:"👁️,👁️‍🗨️" }}
                         </a>
-                        <a href="{% url 'admin_delete_product' product.id %}" class="btn btn-danger btn-sm btn-icon" onclick="return confirm('Delete this product?')" title="Delete">🗑️</a>
+                        <a href="{% url 'admin_delete_product' product.id %}" class="btn btn-danger btn-sm btn-icon" onclick="return confirm('Delete &quot;{{ product.name }}&quot;?\nThis action cannot be undone.')" title="Delete Product">🗑️</a>
                     </div>
                 </td>
             </tr>
             {% empty %}
-            <tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📦</div><h4>No products found</h4><p>Get started by adding your first product above.</p></div></td></tr>
+            <tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📦</div><h4>No products found</h4><p>{% if search_query or category_filter or stock_filter %}Try adjusting your filters or <a href="{% url 'admin_products' %}" style="color:var(--sky-blue);">clear them</a>.{% else %}Get started by adding your first product above.{% endif %}</p></div></td></tr>
             {% endfor %}
         </tbody>
     </table>
@@ -140,11 +174,11 @@
 {% if page_obj.paginator.num_pages > 1 %}
 <div class="pagination">
     {% if page_obj.has_previous %}
-    <a href="?page={{ page_obj.previous_page_number }}&category={{ category_filter }}&q={{ search_query }}">&laquo; Prev</a>
+    <a href="?page={{ page_obj.previous_page_number }}&category={{ category_filter }}&stock={{ stock_filter }}&q={{ search_query }}">&laquo; Previous</a>
     {% endif %}
-    <span class="current">{{ page_obj.number }}</span>
+    <span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
     {% if page_obj.has_next %}
-    <a href="?page={{ page_obj.next_page_number }}&category={{ category_filter }}&q={{ search_query }}">Next &raquo;</a>
+    <a href="?page={{ page_obj.next_page_number }}&category={{ category_filter }}&stock={{ stock_filter }}&q={{ search_query }}">Next &raquo;</a>
     {% endif %}
 </div>
 {% endif %}

@@ -1,0 +1,72 @@
+{% extends 'admin/admin_base.html' %}
+{% block title %} - Testimonials{% endblock %}
+{% block admin_content %}
+<div class="page-header">
+    <div>
+        <h2>Testimonials</h2>
+        <p class="page-subtitle">Manage customer testimonials displayed on the homepage</p>
+    </div>
+</div>
+<div class="card" style="padding:1.75rem;margin-bottom:2rem;max-width:600px;">
+    <h3 style="margin-bottom:1.25rem;">➕ Add Testimonial</h3>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label><strong>Name</strong></label>
+            <input type="text" name="name" required class="form-control" placeholder="Customer name">
+        </div>
+        <div class="form-group">
+            <label><strong>Role</strong> <span style="font-weight:400;color:var(--text-light);">(optional)</span></label>
+            <input type="text" name="role" class="form-control" placeholder="e.g., Dog Owner, Cat Owner">
+        </div>
+        <div class="form-group">
+            <label><strong>Message</strong></label>
+            <textarea name="message" rows="3" required class="form-control" placeholder="Testimonial message..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Testimonial</button>
+    </form>
+</div>
+<div class="card card-p-0">
+    <div class="card-header">
+        <h3>All Testimonials</h3>
+        <span style="color:var(--text-light);font-size:0.85rem;">{{ testimonials.count }} testimonials</span>
+    </div>
+    <div style="overflow-x:auto;">
+    <table class="admin-table">
+        <thead><tr><th></th><th>Name</th><th>Role</th><th>Message</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody>
+            {% for t in testimonials %}
+            <tr>
+                <td>
+                    <div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#fef3c7,#fde68a);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:0.9rem;color:#d97706;flex-shrink:0;">
+                        ⭐
+                    </div>
+                </td>
+                <td><strong>{{ t.name }}</strong></td>
+                <td style="font-size:0.85rem;">{{ t.role|default:"-" }}</td>
+                <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.85rem;color:var(--text-light);">{{ t.message }}</td>
+                <td>
+                    {% if t.is_active %}
+                    <span class="admin-badge badge-success">Active</span>
+                    {% else %}
+                    <span class="admin-badge badge-warning">Hidden</span>
+                    {% endif %}
+                </td>
+                <td style="color:var(--text-light);font-size:0.85rem;">{{ t.created_at|date:"M d, Y" }}</td>
+                <td>
+                    <div class="actions-cell">
+                        <a href="{% url 'admin_toggle_testimonial' t.id %}" class="btn btn-sm btn-icon {% if t.is_active %}btn-warning{% else %}btn-success{% endif %}" title="{{ t.is_active|yesno:'Hide,Show' }}">
+                            {{ t.is_active|yesno:"👁️‍🗨️,👁️" }}
+                        </a>
+                        <a href="{% url 'admin_delete_testimonial' t.id %}" class="btn btn-danger btn-sm btn-icon" onclick="return confirm('Delete this testimonial?')" title="Delete">🗑️</a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">⭐</div><h4>No testimonials yet</h4><p>Add your first testimonial above or share a message from the Messages section.</p></div></td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endblock %}

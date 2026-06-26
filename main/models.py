@@ -158,7 +158,7 @@ class Order(models.Model):
         ('Ghardaïa', 'Ghardaïa'), ('Relizane', 'Relizane'),
         ('Timimoun', 'Timimoun'), ('Bordj Badji Mokhtar', 'Bordj Badji Mokhtar'),
         ('Ouled Djellal', 'Ouled Djellal'), ('Béni Abbès', 'Béni Abbès'),
-        ('In Salah', 'In Salah'), ('In Guezzam', 'In Guezzam'),
+        ('Ain Salah', 'Ain Salah'), ('Ain Guezzam', 'Ain Guezzam'),
         ('Touggourt', 'Touggourt'), ('Djanet', 'Djanet'),
         ('El M\'Ghair', 'El M\'Ghair'), ('Ménaca', 'Ménaca'),
     ]
@@ -216,6 +216,22 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"Message from {self.name}"
+
+
+class Testimonial(models.Model):
+    name = models.CharField(max_length=100)
+    role = models.CharField(max_length=100, blank=True)
+    message = models.TextField()
+    is_active = models.BooleanField(default=True)
+    is_from_message = models.BooleanField(default=False)
+    original_message = models.ForeignKey(ContactMessage, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Testimonial - {self.name}"
 
 
 class AnimalProfile(models.Model):

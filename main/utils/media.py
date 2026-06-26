@@ -3,6 +3,7 @@ from urllib.parse import quote
 
 from django.conf import settings
 from django.templatetags.static import static
+from django.utils.encoding import filepath_to_uri
 
 
 PLACEHOLDER_SVG = (
@@ -14,7 +15,7 @@ PLACEHOLDER_SVG = (
 
 
 def resolve_media_url(image_field):
-    """Return a working URL for an ImageField (local media, Vercel /tmp, or static seed fallback)."""
+    """Return a working URL for an ImageField."""
     if not image_field:
         return ''
 
@@ -23,13 +24,29 @@ def resolve_media_url(image_field):
         return ''
 
     normalized_name = name.replace(chr(92), '/')
+    rel_url = filepath_to_uri(normalized_name)
+    expected_url = settings.MEDIA_URL + rel_url
 
-    media_path = Path(settings.MEDIA_ROOT) / normalized_name
-    if media_path.is_file():
-        return image_field.url
+    try:
+        url = image_field.url
+        if url and url != '/':
+            return url
+    except Exception:
+        pass
 
-    seed_path = Path(settings.BASE_DIR) / 'static' / 'seed' / normalized_name
-    if seed_path.is_file():
-        return static(f'seed/{normalized_name}')
+    try:
+        media_root = str(settings.MEDIA_ROOT)
+        media_path = Path(media_root) / normalized_name
+        if media_path.is_file():
+            return expected_url
+    except Exception:
+        pass
+
+    try:
+        seed_path = Path(settings.BASE_DIR) / 'static' / 'seed' / normalized_name
+        if seed_path.is_file():
+            return static(f'seed/{normalized_name}')
+    except Exception:
+        pass
 
     return PLACEHOLDER_SVG

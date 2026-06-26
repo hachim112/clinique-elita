@@ -14,11 +14,12 @@ if os.environ.get('VERCEL') and not os.environ.get('DATABASE_URL'):
     os.environ['DATABASE_URL'] = f'sqlite:///{vercel_db_path}'
 
 SECRET_KEY = os.environ.get('SECRET_KEY') or os.environ.get('DJANGO_SECRET_KEY') or 'django-insecure-change-me-in-production'
-DEBUG = os.environ.get('DEBUG', 'False').lower() in ('1', 'true', 'yes')
+DEBUG = os.environ.get('DEBUG', 'True').lower() in ('1', 'true', 'yes')
 ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,.vercel.app').split(',')
-    if host.strip()
+    'localhost',
+    '127.0.0.1',
+    'testserver',
+    '.vercel.app',
 ]
 if os.environ.get('VERCEL') and not os.environ.get('ALLOWED_HOSTS'):
     ALLOWED_HOSTS.append('*')
@@ -104,11 +105,11 @@ WHITENOISE_USE_FINDERS = not os.environ.get('VERCEL')
 WHITENOISE_AUTOREFRESH = DEBUG
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = str(BASE_DIR / 'media')
 
 if os.environ.get('VERCEL'):
-    MEDIA_ROOT = Path('/tmp/media')
-    MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
+    MEDIA_ROOT = '/tmp/media'
+    Path(MEDIA_ROOT).mkdir(parents=True, exist_ok=True)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

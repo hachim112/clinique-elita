@@ -215,19 +215,57 @@
                 <span class="stock-info stock-danger">✕ Out of Stock</span>
                 {% endif %}
             </div>
-            <form method="post" action="{% url 'add_to_cart' product.id %}" style="margin-top:1.25rem;">
+            <form method="post" action="{% url 'direct_buy' product.id %}" style="margin-top:1.25rem;">
                 {% csrf_token %}
-                <div class="quantity-selector">
-                    <label style="font-weight:600;font-size:0.9rem;">Quantity:</label>
-                    <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
-                    <input type="number" name="quantity" id="qty" value="1" min="1" max="{{ product.stock }}" class="qty-input">
-                    <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" style="margin-bottom:1rem;padding:10px 14px;border-radius:8px;font-size:0.85rem;">
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div class="form-group">
+                        <label style="font-weight:600;font-size:0.9rem;">First Name *</label>
+                        <input type="text" name="first_name" required class="form-control" placeholder="First name" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);" value="{{ data.first_name|default:'' }}">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-weight:600;font-size:0.9rem;">Last Name *</label>
+                        <input type="text" name="last_name" required class="form-control" placeholder="Last name" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);" value="{{ data.last_name|default:'' }}">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-weight:600;font-size:0.9rem;">Phone *</label>
+                        <input type="tel" name="phone" required class="form-control" placeholder="Phone number" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);" value="{{ data.phone|default:'' }}">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-weight:600;font-size:0.9rem;">Wilaya *</label>
+                        <select name="wilaya" id="id_wilaya" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                            <option value="">Select Wilaya</option>
+                            {% for code, name in wilaya_choices %}
+                            <option value="{{ name }}" data-code="{{ forloop.counter }}" {% if data.wilaya == name %}selected{% endif %}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-weight:600;font-size:0.9rem;">Commune *</label>
+                        <select name="commune" id="id_commune" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                            <option value="">Select Wilaya first</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-weight:600;font-size:0.9rem;">Quantity *</label>
+                        <input type="number" name="quantity" value="{{ data.quantity|default:'1' }}" min="1" max="{{ product.stock }}" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
+                    </div>
+                    <div class="form-group" style="grid-column:1/-1;">
+                        <label style="font-weight:600;font-size:0.9rem;">Address *</label>
+                        <textarea name="address" rows="2" required class="form-control" placeholder="Delivery address" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">{{ data.address|default:'' }}</textarea>
+                    </div>
                 </div>
                 <div class="product-actions-row">
-                    <button type="submit" class="btn btn-primary" {% if product.stock < 1 %}disabled{% endif %}>
-                        {% if product.stock > 0 %}<i class="fas fa-cart-plus"></i> Add to Cart{% else %}Out of Stock{% endif %}
+                    <button type="submit" class="btn btn-primary" {% if product.stock < 1 %}disabled{% endif %} style="flex:2;">
+                        {% if product.stock > 0 %}<i class="fas fa-truck"></i> Place Order{% else %}Out of Stock{% endif %}
                     </button>
-                    <a href="{% url 'shop' %}" class="btn btn-outline">← Continue Shopping</a>
+                    <a href="{% url 'shop' %}" class="btn btn-outline" style="flex:1;justify-content:center;">← Back</a>
                 </div>
             </form>
         </div>
@@ -269,5 +307,34 @@ function changeQty(delta) {
     if (val > {{ product.stock }}) val = {{ product.stock }};
     el.value = val;
 }
+
+document.getElementById('id_wilaya').addEventListener('change', function() {
+    const wilayaSelect = this;
+    const communeSelect = document.getElementById('id_commune');
+    const wilayaCode = wilayaSelect.options[wilayaSelect.selectedIndex].getAttribute('data-code');
+    
+    communeSelect.innerHTML = '<option value="">Loading...</option>';
+    
+    if (!wilayaCode) {
+        communeSelect.innerHTML = '<option value="">Select Wilaya first</option>';
+        return;
+    }
+    
+    fetch(`/ajax/communes/${wilayaCode}/`)
+        .then(response => response.json())
+        .then(data => {
+            const communes = data.communes || [];
+            communeSelect.innerHTML = '<option value="">Select Commune</option>';
+            communes.forEach(commune => {
+                const option = document.createElement('option');
+                option.value = commune;
+                option.textContent = commune;
+                communeSelect.appendChild(option);
+            });
+        })
+        .catch(error => {
+            communeSelect.innerHTML = '<option value="">Error loading communes</option>';
+        });
+});
 </script>
 {% endblock %}

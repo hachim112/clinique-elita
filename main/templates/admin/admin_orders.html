@@ -14,24 +14,66 @@
     <a href="{% url 'admin_orders' %}?status=shipping" class="btn {% if status_filter == 'shipping' %}btn-info{% else %}btn-outline{% endif %} btn-sm">🚚 Shipping</a>
     <a href="{% url 'admin_orders' %}?status=delivered" class="btn {% if status_filter == 'delivered' %}btn-success{% else %}btn-outline{% endif %} btn-sm">📦 Delivered</a>
     <a href="{% url 'admin_orders' %}?status=cancelled" class="btn {% if status_filter == 'cancelled' %}btn-danger{% else %}btn-outline{% endif %} btn-sm">❌ Cancelled</a>
+    <form method="get" style="display:flex;gap:8px;flex:1;justify-content:flex-end;">
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search orders..." class="form-control" style="min-width:220px;">
+        <button type="submit" class="btn btn-primary btn-sm">🔍 Search</button>
+        {% if search_query %}
+        <a href="{% url 'admin_orders' %}" class="btn btn-outline btn-sm">✕ Clear</a>
+        {% endif %}
+    </form>
+</div>
+<div class="stats-grid" style="margin-bottom:1.5rem;">
+    <div class="stat-card info">
+        <div class="stat-icon">📋</div>
+        <div class="stat-value">{{ page_obj.paginator.count }}</div>
+        <div class="stat-label">Total Orders</div>
+    </div>
+    <div class="stat-card warning">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-value">{{ page_obj.object_list|length }}</div>
+        <div class="stat-label">Showing</div>
+    </div>
+    <div class="stat-card success">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value">{{ page_obj.paginator.count|default:"0" }}</div>
+        <div class="stat-label">Orders</div>
+    </div>
 </div>
 <div class="card card-p-0">
     <div class="card-header">
         <h3>All Orders</h3>
-        <span style="color:var(--text-light);font-size:0.85rem;">{{ page_obj.paginator.count }} orders</span>
+        <span style="color:var(--text-light);font-size:0.85rem;">{{ page_obj.paginator.count }} orders found</span>
     </div>
     <div style="overflow-x:auto;">
     <table class="admin-table">
-        <thead><tr><th>Order ID</th><th>Customer</th><th>Phone</th><th>Wilaya</th><th>Total</th><th>Items</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Order ID</th><th>Customer</th><th>Phone</th><th>Location</th><th>Delivery</th><th>Total</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
         <tbody>
             {% for order in page_obj %}
             <tr>
-                <td><strong style="color:var(--sky-blue);">#{{ order.order_id }}</strong></td>
-                <td>{{ order.guest_name|default:order.user.get_full_name|default:"Guest" }}</td>
+                <td><strong style="color:var(--sky-blue);cursor:pointer;">#{{ order.order_id }}</strong></td>
+                <td>
+                    <div style="font-weight:600;">
+                        {% if order.guest_name %}{{ order.guest_name }}
+                        {% elif order.user %}{{ order.user.get_full_name|default:order.user.username }}
+                        {% else %}<span style="color:var(--text-light);">Guest</span>{% endif %}
+                    </div>
+                    {% if order.user and order.user.email %}
+                    <div style="font-size:0.75rem;color:var(--text-light);">{{ order.user.email }}</div>
+                    {% endif %}
+                </td>
                 <td style="font-size:0.85rem;">{{ order.guest_phone|default:"-" }}</td>
-                <td>{{ order.wilaya }}</td>
+                <td style="font-size:0.85rem;">
+                    <div>{{ order.wilaya }}</div>
+                    <div style="color:var(--text-light);">{{ order.commune|truncatechars:20 }}</div>
+                </td>
+                <td>
+                    {% if order.delivery_type == 'home' %}
+                    <span class="admin-badge badge-info">🏠 Home</span>
+                    {% else %}
+                    <span class="admin-badge badge-warning">🏢 Desk</span>
+                    {% endif %}
+                </td>
                 <td><strong>{{ order.total_price }} DZD</strong></td>
-                <td style="text-align:center;">{{ order.item_count|default:"-" }}</td>
                 <td>
                     <span class="admin-badge
                         {% if order.status == 'pending' %}badge-warning
@@ -42,46 +84,46 @@
                         {{ order.get_status_display }}
                     </span>
                 </td>
-                <td style="color:var(--text-light);font-size:0.85rem;">{{ order.created_at|date:"M d, Y" }}</td>
+                <td style="color:var(--text-light);font-size:0.85rem;">{{ order.created_at|date:"M d, Y H:i" }}</td>
                 <td>
                     <div class="actions-cell">
                         {% if order.status == 'pending' %}
-                        <form method="post" style="display:inline;">
+                        <form method="post" style="display:inline;" onsubmit="return confirm('Confirm this order?')">
                             {% csrf_token %}
                             <input type="hidden" name="order_id" value="{{ order.id }}">
                             <input type="hidden" name="action" value="confirm">
-                            <button type="submit" class="btn btn-success btn-icon" title="Confirm">✅</button>
+                            <button type="submit" class="btn btn-success btn-sm btn-icon" title="Confirm Order">✅</button>
                         </form>
                         {% endif %}
                         {% if order.status == 'confirmed' %}
-                        <form method="post" style="display:inline;">
+                        <form method="post" style="display:inline;" onsubmit="return confirm('Mark as shipping?')">
                             {% csrf_token %}
                             <input type="hidden" name="order_id" value="{{ order.id }}">
                             <input type="hidden" name="action" value="ship">
-                            <button type="submit" class="btn btn-info btn-icon" title="Ship">🚚</button>
+                            <button type="submit" class="btn btn-info btn-sm btn-icon" title="Mark Shipping">🚚</button>
                         </form>
                         {% endif %}
                         {% if order.status == 'shipping' %}
-                        <form method="post" style="display:inline;">
+                        <form method="post" style="display:inline;" onsubmit="return confirm('Mark as delivered?')">
                             {% csrf_token %}
                             <input type="hidden" name="order_id" value="{{ order.id }}">
                             <input type="hidden" name="action" value="deliver">
-                            <button type="submit" class="btn btn-primary btn-icon" title="Deliver">🏁</button>
+                            <button type="submit" class="btn btn-primary btn-sm btn-icon" title="Mark Delivered">🏁</button>
                         </form>
                         {% endif %}
                         {% if order.status != 'cancelled' and order.status != 'delivered' %}
-                        <form method="post" style="display:inline;" onsubmit="return confirm('Cancel this order?')">
+                        <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this order?')">
                             {% csrf_token %}
                             <input type="hidden" name="order_id" value="{{ order.id }}">
                             <input type="hidden" name="action" value="cancel">
-                            <button type="submit" class="btn btn-danger btn-icon" title="Cancel">✕</button>
+                            <button type="submit" class="btn btn-danger btn-sm btn-icon" title="Cancel Order">✕</button>
                         </form>
                         {% endif %}
                     </div>
                 </td>
             </tr>
             {% empty %}
-            <tr><td colspan="9"><div class="empty-state"><div class="empty-icon">🛒</div><h4>No orders found</h4></div></td></tr>
+            <tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📋</div><h4>No orders found</h4><p>{% if status_filter or search_query %}Try adjusting your filters.{% else %}New orders will appear here when customers place them.{% endif %}</p></div></td></tr>
             {% endfor %}
         </tbody>
     </table>
@@ -90,9 +132,9 @@
 {% if page_obj.paginator.num_pages > 1 %}
 <div class="pagination">
     {% if page_obj.has_previous %}
-    <a href="?page={{ page_obj.previous_page_number }}&status={{ status_filter }}&q={{ search_query }}">&laquo; Prev</a>
+    <a href="?page={{ page_obj.previous_page_number }}&status={{ status_filter }}&q={{ search_query }}">&laquo; Previous</a>
     {% endif %}
-    <span class="current">{{ page_obj.number }}</span>
+    <span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
     {% if page_obj.has_next %}
     <a href="?page={{ page_obj.next_page_number }}&status={{ status_filter }}&q={{ search_query }}">Next &raquo;</a>
     {% endif %}

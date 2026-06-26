@@ -35,7 +35,7 @@
                 <td style="color:var(--text-light);font-size:0.85rem;">{{ user.date_joined|date:"M d, Y" }}</td>
                 <td>
                     <div class="actions-cell">
-                        <a href="{% url 'admin:auth_user_change' user.id %}" class="btn btn-outline btn-sm" title="View in Django Admin">👁️ View</a>
+                        <a href="{% url 'admin_customer_detail' user.id %}" class="btn btn-primary btn-sm" title="View Details">👁️ Details</a>
                     </div>
                 </td>
             </tr>

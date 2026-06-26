@@ -46,6 +46,12 @@
                             <button type="submit" class="btn btn-success btn-sm btn-icon" title="Mark Read">✓</button>
                         </form>
                         {% endif %}
+                        <form method="post" style="display:inline;" onsubmit="return confirm('Share this message as a Testimonial?')">
+                            {% csrf_token %}
+                            <input type="hidden" name="msg_id" value="{{ msg.id }}">
+                            <input type="hidden" name="action" value="share_testimonial">
+                            <button type="submit" class="btn btn-primary btn-sm btn-icon" title="Share as Testimonial">⭐</button>
+                        </form>
                         <form method="post" style="display:inline;" onsubmit="return confirm('Delete this message?')">
                             {% csrf_token %}
                             <input type="hidden" name="msg_id" value="{{ msg.id }}">

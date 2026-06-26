@@ -1,0 +1,128 @@
+{% extends 'admin/admin_base.html' %}
+{% block title %} - Customer Details{% endblock %}
+{% block admin_content %}
+<div class="page-header">
+    <div>
+        <h2>Customer Details</h2>
+        <p class="page-subtitle">{{ customer.get_full_name|default:customer.username }}</p>
+    </div>
+    <a href="{% url 'admin_customers' %}" class="btn btn-outline">← Back to Customers</a>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card info">
+        <div class="stat-icon">📅</div>
+        <div class="stat-value">{{ total_appointments }}</div>
+        <div class="stat-label">Appointments</div>
+    </div>
+    <div class="stat-card success">
+        <div class="stat-icon">🛒</div>
+        <div class="stat-value">{{ total_orders }}</div>
+        <div class="stat-label">Orders</div>
+    </div>
+    <div class="stat-card warning">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value">{{ total_spent|floatformat:2 }} DZD</div>
+        <div class="stat-label">Total Spent</div>
+    </div>
+</div>
+
+<div class="card" style="padding:1.75rem;margin-bottom:2rem;">
+    <h3 style="margin-bottom:1rem;">👤 Account Information</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;font-size:0.9rem;">
+        <div>
+            <p style="color:var(--text-light);margin-bottom:0.25rem;">Full Name</p>
+            <strong>{{ customer.get_full_name|default:"-" }}</strong>
+        </div>
+        <div>
+            <p style="color:var(--text-light);margin-bottom:0.25rem;">Username</p>
+            <strong>{{ customer.username }}</strong>
+        </div>
+        <div>
+            <p style="color:var(--text-light);margin-bottom:0.25rem;">Email</p>
+            <strong>{{ customer.email }}</strong>
+        </div>
+        <div>
+            <p style="color:var(--text-light);margin-bottom:0.25rem;">Phone</p>
+            <strong>{{ customer.profile.phone|default:"-" }}</strong>
+        </div>
+        <div>
+            <p style="color:var(--text-light);margin-bottom:0.25rem;">Address</p>
+            <strong>{{ customer.profile.address|default:"-"|truncatechars:50 }}</strong>
+        </div>
+        <div>
+            <p style="color:var(--text-light);margin-bottom:0.25rem;">Joined</p>
+            <strong>{{ customer.date_joined|date:"M d, Y" }}</strong>
+        </div>
+        <div>
+            <p style="color:var(--text-light);margin-bottom:0.25rem;">Last Login</p>
+            <strong>{% if customer.last_login %}{{ customer.last_login|date:"M d, Y H:i" }}{% else %}Never{% endif %}</strong>
+        </div>
+        <div>
+            <p style="color:var(--text-light);margin-bottom:0.25rem;">Role</p>
+            <strong>{% if customer.is_staff %}Staff{% else %}Customer{% endif %}</strong>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="padding:1.75rem;margin-bottom:2rem;">
+    <h3 style="margin-bottom:1rem;">📅 Recent Appointments</h3>
+    {% if appointments %}
+    <div style="overflow-x:auto;">
+    <table class="admin-table">
+        <thead><tr><th>Tracking ID</th><th>Animal</th><th>Date</th><th>Time</th><th>Status</th></tr></thead>
+        <tbody>
+            {% for appt in appointments %}
+            <tr>
+                <td><strong>{{ appt.tracking_id|default:"-" }}</strong></td>
+                <td>{{ appt.animal_name }} ({{ appt.get_animal_type_display }})</td>
+                <td>{{ appt.date|date:"M d, Y" }}</td>
+                <td>{{ appt.time|time:"H:i" }}</td>
+                <td>
+                    {% if appt.status == 'pending' %}<span class="admin-badge badge-warning">Pending</span>
+                    {% elif appt.status == 'accepted' %}<span class="admin-badge badge-success">Accepted</span>
+                    {% elif appt.status == 'completed' %}<span class="admin-badge badge-info">Completed</span>
+                    {% else %}<span class="admin-badge badge-danger">Denied</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}
+    <div class="empty-state"><div class="empty-icon">📅</div><h4>No appointments yet</h4></div>
+    {% endif %}
+</div>
+
+<div class="card" style="padding:1.75rem;">
+    <h3 style="margin-bottom:1rem;">🛒 Recent Orders</h3>
+    {% if orders %}
+    <div style="overflow-x:auto;">
+    <table class="admin-table">
+        <thead><tr><th>Order ID</th><th>Date</th><th>Status</th><th>Total</th><th>Items</th></tr></thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td><strong>{{ order.order_id }}</strong></td>
+                <td>{{ order.created_at|date:"M d, Y" }}</td>
+                <td>
+                    {% if order.status == 'pending' %}<span class="admin-badge badge-warning">Pending</span>
+                    {% elif order.status == 'confirmed' %}<span class="admin-badge badge-info">Confirmed</span>
+                    {% elif order.status == 'shipping' %}<span class="admin-badge badge-info">Shipping</span>
+                    {% elif order.status == 'delivered' %}<span class="admin-badge badge-success">Delivered</span>
+                    {% else %}<span class="admin-badge badge-danger">Cancelled</span>
+                    {% endif %}
+                </td>
+                <td><strong>{{ order.total_price }} DZD</strong></td>
+                <td>{{ order.item_count }} items</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}
+    <div class="empty-state"><div class="empty-icon">🛒</div><h4>No orders yet</h4></div>
+    {% endif %}
+</div>
+{% endblock %}

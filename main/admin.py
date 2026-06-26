@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
     Profile, Appointment, Category, Product, Cart, CartItem,
-    Order, OrderItem, ContactMessage, AnimalProfile
+    Order, OrderItem, ContactMessage, AnimalProfile, Testimonial
 )
 
 
@@ -128,3 +128,11 @@ class AnimalProfileAdmin(admin.ModelAdmin):
     list_display = ['name', 'species', 'breed', 'user', 'age', 'gender']
     list_filter = ['species', 'gender']
     search_fields = ['name', 'user__username', 'breed']
+
+
+@admin.register(Testimonial)
+class TestimonialAdmin(admin.ModelAdmin):
+    list_display = ['name', 'role', 'is_active', 'is_from_message', 'created_at']
+    list_filter = ['is_active', 'is_from_message']
+    search_fields = ['name', 'message', 'role']
+    ordering = ['-created_at']

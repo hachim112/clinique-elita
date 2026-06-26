@@ -1,10 +1,23 @@
 {% extends 'admin/admin_base.html' %}
+{% load media_extras %}
 {% block title %} - Manage Categories{% endblock %}
 {% block admin_content %}
 <div class="page-header">
     <div>
         <h2>Manage Categories</h2>
         <p class="page-subtitle">Organize your product categories</p>
+    </div>
+</div>
+<div class="stats-grid" style="margin-bottom:1.5rem;">
+    <div class="stat-card info">
+        <div class="stat-icon">📁</div>
+        <div class="stat-value">{{ categories.count }}</div>
+        <div class="stat-label">Total Categories</div>
+    </div>
+    <div class="stat-card success">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">{{ categories|length }}</div>
+        <div class="stat-label">Showing</div>
     </div>
 </div>
 <div class="card" style="padding:1.75rem;margin-bottom:2rem;max-width:600px;">
@@ -17,7 +30,7 @@
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="form-group">
-            <label><strong>Category Name</strong></label>
+            <label><strong>Category Name *</strong></label>
             <input type="text" name="name" required class="form-control" placeholder="e.g., Dog Food, Cat Toys..." value="{{ form.name.value|default:'' }}">
             {% if form.name.errors %}<span class="field-error">{{ form.name.errors.0 }}</span>{% endif %}
         </div>
@@ -53,35 +66,41 @@
     </div>
     <div style="overflow-x:auto;">
     <table class="admin-table">
-        <thead><tr><th></th><th>Name</th><th>Slug</th><th>Active</th><th>Actions</th></tr></thead>
+        <thead><tr><th></th><th>Category Name</th><th>Slug</th><th>Products</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody>
             {% for cat in categories %}
             <tr>
                 <td>
                     {% if cat.image %}
-                    <img src="{{ cat.image|media_url }}" style="width:44px;height:44px;border-radius:10px;object-fit:cover;box-shadow:var(--shadow);">
+                    <img src="{{ cat.image|media_url }}" style="width:48px;height:48px;border-radius:10px;object-fit:cover;box-shadow:var(--shadow);">
                     {% else %}
-                    <div style="width:44px;height:44px;border-radius:10px;background:var(--light-gray);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">📁</div>
+                    <div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--light-gray),#e2e8f0);display:flex;align-items:center;justify-content:center;font-size:1.4rem;">📁</div>
                     {% endif %}
                 </td>
-                <td><strong>{{ cat.name }}</strong></td>
+                <td>
+                    <div style="font-weight:600;">{{ cat.name }}</div>
+                    {% if cat.description %}
+                    <div style="font-size:0.75rem;color:var(--text-light);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ cat.description|truncatechars:50 }}</div>
+                    {% endif %}
+                </td>
                 <td style="color:var(--text-light);font-family:monospace;font-size:0.85rem;">{{ cat.slug|default:"-" }}</td>
+                <td style="text-align:center;font-weight:600;">{{ cat.product_count }}</td>
                 <td>
                     {% if cat.is_active %}
-                    <span class="admin-badge badge-success">Active</span>
+                    <span class="admin-badge badge-success">🟢 Active</span>
                     {% else %}
-                    <span class="admin-badge badge-warning">Inactive</span>
+                    <span class="admin-badge badge-warning">🟡 Inactive</span>
                     {% endif %}
                 </td>
                 <td>
                     <div class="actions-cell">
-                        <a href="{% url 'admin_edit_category' cat.id %}" class="btn btn-outline btn-sm btn-icon" title="Edit">✏️</a>
-                        <a href="{% url 'admin_delete_category' cat.id %}" class="btn btn-danger btn-sm btn-icon" onclick="return confirm('Delete this category?')" title="Delete">🗑️</a>
+                        <a href="{% url 'admin_edit_category' cat.id %}" class="btn btn-outline btn-sm btn-icon" title="Edit Category">✏️</a>
+                        <a href="{% url 'admin_delete_category' cat.id %}" class="btn btn-danger btn-sm btn-icon" onclick="return confirm('Delete category &quot;{{ cat.name }}&quot;?\nThis will not delete products in this category.')" title="Delete Category">🗑️</a>
                     </div>
                 </td>
             </tr>
             {% empty %}
-            <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📁</div><h4>No categories yet</h4><p>Create your first category above.</p></div></td></tr>
+            <tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📁</div><h4>No categories yet</h4><p>Create your first category above to organize your products.</p></div></td></tr>
             {% endfor %}
         </tbody>
     </table>

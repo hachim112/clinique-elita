@@ -28,8 +28,16 @@
             <textarea name="address" rows="2" class="form-control">{{ profile.address|default:'' }}</textarea>
         </div>
         <div class="form-group">
+            <label><strong>Old Password</strong> <span style="font-weight:400;color:var(--text-light);">(required to change password)</span></label>
+            <input type="password" name="old_password" class="form-control" placeholder="Enter current password">
+        </div>
+        <div class="form-group">
             <label><strong>New Password</strong> <span style="font-weight:400;color:var(--text-light);">(leave blank to keep current)</span></label>
             <input type="password" name="new_password" class="form-control" placeholder="Enter new password">
+        </div>
+        <div class="form-group">
+            <label><strong>Confirm New Password</strong></label>
+            <input type="password" name="confirm_password" class="form-control" placeholder="Re-enter new password">
         </div>
         <button type="submit" class="btn btn-primary">💾 Update Profile</button>
     </form>

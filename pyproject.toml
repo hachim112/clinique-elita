@@ -16,6 +16,7 @@ packages = ["clinique_elita", "main"]
 
 [tool.vercel]
 entrypoint = "clinique_elita.wsgi:application"
+runtime = "python3.12"
 
 [tool.vercel.scripts]
 build = "python manage.py migrate --noinput"

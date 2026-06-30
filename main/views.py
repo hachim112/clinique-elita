@@ -568,6 +568,23 @@ def direct_buy_view(request, product_id):
         commune = request.POST.get('commune', '').strip()
         address = request.POST.get('address', '').strip()
         quantity = request.POST.get('quantity', '1')
+        delivery_type = request.POST.get('delivery_type', 'home')
+
+        errors = []
+        if not first_name:
+            errors.append('First name is required.')
+        if not last_name:
+            errors.append('Last name is required.')
+        if not phone:
+            errors.append('Phone number is required.')
+        if not wilaya:
+            errors.append('Wilaya is required.')
+        if not commune:
+            errors.append('Commune is required.')
+        if not address:
+            errors.append('Address is required.')
+        if delivery_type not in ['home', 'desk']:
+            delivery_type = 'home'
 
         errors = []
         if not first_name:
@@ -615,7 +632,7 @@ def direct_buy_view(request, product_id):
             wilaya=wilaya,
             commune=commune,
             address=address,
-            delivery_type='home',
+            delivery_type=delivery_type,
             total_price=total,
             order_id=generate_order_id(),
         )
@@ -931,6 +948,18 @@ def admin_toggle_product_view(request, product_id):
 
 
 @user_passes_test(is_admin)
+def admin_products_bulk_delete_view(request):
+    """Delete multiple products at once."""
+    if request.method == 'POST':
+        product_ids = request.POST.get('product_ids', '')
+        if product_ids:
+            ids_list = [id.strip() for id in product_ids.split(',') if id.strip().isdigit()]
+            deleted_count = Product.objects.filter(id__in=ids_list).delete()[0]
+            messages.success(request, f'{deleted_count} product(s) deleted successfully.')
+    return redirect('admin_products')
+
+
+@user_passes_test(is_admin)
 def admin_orders_view(request):
     """Admin order management."""
     orders = Order.objects.all().order_by('-created_at')
@@ -975,6 +1004,16 @@ def admin_orders_view(request):
         'status_filter': status_filter,
         'search_query': search_query,
     })
+
+
+@user_passes_test(is_admin)
+def admin_order_details_ajax(request, order_id):
+    """AJAX endpoint to get order details for modal."""
+    from django.template.loader import render_to_string
+    order = get_object_or_404(Order, id=order_id)
+    
+    html = render_to_string('admin/order_details_modal.html', {'order': order})
+    return JsonResponse({'success': True, 'html': html})
 
 
 @user_passes_test(is_admin)

@@ -775,7 +775,7 @@
                 <li><a href="{% url 'admin_appointments' %}" class="{% if request.resolver_match.url_name == 'admin_appointments' %}active{% endif %}" data-icon="📅">
                     <span class="nav-icon">📅</span><span>Appointments</span>
                 </a></li>
-                <li><a href="{% url 'admin_products' %}" class="{% if request.resolver_match.url_name == 'admin_products' or request.resolver_match.url_name == 'admin_edit_product' or request.resolver_match.url_name == 'admin_delete_product' or request.resolver_match.url_name == 'admin_toggle_product' %}active{% endif %}" data-icon="📦">
+                <li><a href="{% url 'admin_products' %}" class="{% if request.resolver_match.url_name == 'admin_products' or request.resolver_match.url_name == 'admin_edit_product' or request.resolver_match.url_name == 'admin_delete_product' or request.resolver_match.url_name == 'admin_toggle_product' or request.resolver_match.url_name == 'admin_products_bulk_delete' %}active{% endif %}" data-icon="📦">
                     <span class="nav-icon">📦</span><span>Products</span>
                 </a></li>
                 <li><a href="{% url 'admin_orders' %}" class="{% if request.resolver_match.url_name == 'admin_orders' %}active{% endif %}" data-icon="🛒">

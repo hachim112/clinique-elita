@@ -1,0 +1,63 @@
+<div style="margin-bottom:1rem;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+            <strong>Order ID:</strong> <span style="color:var(--sky-blue);">#{{ order.order_id }}</span>
+        </div>
+        <div>
+            <strong>Status:</strong> 
+            <span class="admin-badge 
+                {% if order.status == 'pending' %}badge-warning
+                {% elif order.status == 'confirmed' %}badge-success
+                {% elif order.status == 'shipping' %}badge-info
+                {% elif order.status == 'delivered' %}badge-success
+                {% else %}badge-danger{% endif %}">
+                {{ order.get_status_display }}
+            </span>
+        </div>
+    </div>
+</div>
+<div style="margin-bottom:1rem;">
+    <h4 style="margin:0 0 0.5rem;font-size:0.9rem;color:var(--text-dark);">Customer Information</h4>
+    <div style="background:var(--light-gray);padding:1rem;border-radius:8px;font-size:0.85rem;">
+        <div><strong>Name:</strong> {% if order.guest_name %}{{ order.guest_name }}{% elif order.user %}{{ order.user.get_full_name|default:order.user.username }}{% else %}Guest{% endif %}</div>
+        <div><strong>Phone:</strong> {{ order.guest_phone|default:"-" }}</div>
+        {% if order.guest_email %}<div><strong>Email:</strong> {{ order.guest_email }}</div>{% endif %}
+    </div>
+</div>
+<div style="margin-bottom:1rem;">
+    <h4 style="margin:0 0 0.5rem;font-size:0.9rem;color:var(--text-dark);">Delivery Information</h4>
+    <div style="background:var(--light-gray);padding:1rem;border-radius:8px;font-size:0.85rem;">
+        <div><strong>Location:</strong> {{ order.wilaya }}, {{ order.commune }}</div>
+        <div><strong>Address:</strong> {{ order.address|linebreaksbr }}</div>
+        <div><strong>Delivery Type:</strong> {{ order.get_delivery_type_display }}</div>
+    </div>
+</div>
+<div style="margin-bottom:1rem;">
+    <h4 style="margin:0 0 0.5rem;font-size:0.9rem;color:var(--text-dark);">Order Items</h4>
+    <table class="admin-table" style="font-size:0.8rem;">
+        <thead><tr><th>Product</th><th>Price</th><th>Qty</th><th>Total</th></tr></thead>
+        <tbody>
+            {% for item in order.items.all %}
+            <tr>
+                <td>{{ item.product_name }}</td>
+                <td>{{ item.product_price }} DZD</td>
+                <td>{{ item.quantity }}</td>
+                <td><strong>{{ item.total_price }} DZD</strong></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="text-align:center;color:var(--text-light);">No items found</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% if order.notes %}
+<div style="margin-bottom:1rem;">
+    <h4 style="margin:0 0 0.5rem;font-size:0.9rem;color:var(--text-dark);">Notes</h4>
+    <div style="background:var(--light-gray);padding:1rem;border-radius:8px;font-size:0.85rem;">
+        {{ order.notes|linebreaksbr }}
+    </div>
+</div>
+{% endif %}
+<div style="text-align:right;padding-top:1rem;border-top:1px solid #e2e8f0;">
+    <strong>Total: {{ order.total_price }} DZD</strong>
+</div>

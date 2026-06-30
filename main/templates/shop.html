@@ -85,33 +85,67 @@
 .shop-main {
     min-width: 0;
 }
-.shop-filters {
+.shop-header {
     background: var(--white);
     border-radius: var(--radius);
     padding: 1.25rem 1.5rem;
     box-shadow: var(--shadow);
     margin-bottom: 1.5rem;
-}
-.filter-row {
     display: flex;
-    gap: 0.75rem;
+    justify-content: space-between;
+    align-items: center;
     flex-wrap: wrap;
-    align-items: flex-end;
+    gap: 1rem;
 }
-.filter-group { flex: 1; min-width: 140px; }
-.filter-group label {
-    display: block;
-    font-weight: 500;
+.shop-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--dark-blue);
+    margin: 0;
+}
+.search-wrap {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+.search-wrap input {
+    padding: 9px 16px;
+    border-radius: 50px;
+    border: 2px solid #e5e7eb;
+    background: var(--light-gray);
+    color: var(--text-dark);
+    min-width: 180px;
+    font-size: 0.85rem;
+    outline: none;
+    transition: var(--transition);
+}
+.search-wrap input:focus {
+    border-color: var(--sky-blue);
+    background: white;
+}
+.filter-bar {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.filter-bar label {
     font-size: 0.8rem;
+    font-weight: 600;
     color: var(--text-light);
-    margin-bottom: 0.35rem;
     text-transform: uppercase;
     letter-spacing: 0.03em;
+    margin-right: 0.5rem;
 }
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
 }
 .product-card {
     background: var(--white);
@@ -149,7 +183,7 @@
     color: var(--sky-blue);
     opacity: 0.5;
 }
-.product-badge {
+.card-badge {
     position: absolute;
     top: 10px;
     left: 10px;
@@ -161,8 +195,7 @@
     letter-spacing: 0.04em;
     z-index: 2;
 }
-.badge-new { background: var(--sky-blue); color: white; }
-.product-stock-badge {
+.stock-badge {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -174,29 +207,10 @@
     letter-spacing: 0.02em;
     z-index: 2;
 }
-.quick-add-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(18, 52, 88, 0.85);
-    padding: 10px;
-    display: flex;
-    gap: 8px;
-    transform: translateY(100%);
-    transition: transform 0.3s ease;
-    z-index: 3;
-}
-.product-card:hover .quick-add-overlay {
-    transform: translateY(0);
-}
-.quick-add-overlay .btn {
-    flex: 1;
-    text-align: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    padding: 6px 10px;
-}
+.badge-new { background: var(--sky-blue); color: white; }
+.badge-success { background: #10b981; color: white; }
+.badge-warning { background: #f59e0b; color: white; }
+.badge-danger { background: #ef4444; color: white; }
 .product-body {
     padding: 1rem 1.2rem 1.2rem;
     display: flex;
@@ -230,23 +244,20 @@
     align-items: center;
     font-size: 0.8rem;
     color: var(--text-light);
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
 }
 .product-rating {
     color: #f59e0b;
     font-size: 0.85rem;
 }
-.product-actions {
-    display: flex;
-    gap: 8px;
+.quick-view-btn {
     margin-top: auto;
 }
-.product-actions .btn {
-    flex: 1;
-    text-align: center;
+.quick-view-btn .btn {
+    width: 100%;
     justify-content: center;
-    font-size: 0.8rem;
-    padding: 8px 12px;
+    font-size: 0.85rem;
+    padding: 10px 16px;
 }
 .pagination {
     display: flex;
@@ -281,6 +292,57 @@
     padding: 3rem;
     color: var(--text-light);
 }
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+.modal-overlay.show {
+    display: flex;
+}
+.modal-card {
+    background: white;
+    border-radius: var(--radius);
+    max-width: 500px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+}
+.modal-card .product-img-wrap {
+    height: 280px;
+    border-radius: var(--radius) var(--radius) 0 0;
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem 0;
+}
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--dark-blue);
+}
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-light);
+    padding: 4px 8px;
+}
+.modal-body {
+    padding: 1rem 1.5rem 1.5rem;
+}
+.modal-footer {
+    padding: 0 1.5rem 1.5rem;
+}
 @media (max-width: 900px) {
     .shop-layout {
         grid-template-columns: 1fr;
@@ -295,6 +357,13 @@
     }
     .sidebar-cat-list li { margin: 0; }
     .sidebar-cat-count { display: none; }
+    .shop-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .search-wrap {
+        justify-content: flex-end;
+    }
 }
 </style>
 <div class="container" style="padding-top: 2rem;">
@@ -306,7 +375,7 @@
             <h3>📁 Categories</h3>
             <ul class="sidebar-cat-list">
                 <li>
-                    <a href="?{% if selected_category %}{% else %}sort={{ sort_by }}&q={{ search_query }}{% endif %}" class="{% if not selected_category %}active{% endif %}">
+                    <a href="?sort={{ sort_by }}&q={{ search_query }}" class="{% if not selected_category %}active{% endif %}">
                         <div class="sidebar-cat-icon">📦</div>
                         All Products
                         {% if not selected_category %}<span class="sidebar-cat-count">{{ page_obj.paginator.count }}</span>{% endif %}
@@ -328,39 +397,29 @@
             </ul>
         </aside>
         <div class="shop-main">
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem;">
-                <h1 style="font-size:1.5rem;font-weight:700;color:var(--dark-blue);">
-                    {% if selected_category %}{{ selected_category|capfirst }}{% else %}All Products{% endif %}
-                </h1>
-                <div style="display:flex;gap:8px;align-items:center;">
-                    <input type="text" id="searchInput" placeholder="Search..." value="{{ search_query }}" style="padding:9px 16px;border-radius:50px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);min-width:180px;font-size:0.85rem;">
+            <div class="shop-header">
+                <h1>{% if selected_category %}{{ selected_category|capfirst }}{% else %}All Products{% endif %}</h1>
+                <div class="search-wrap">
+                    <input type="text" id="searchInput" placeholder="Search products..." value="{{ search_query }}">
                     <button onclick="applySearch()" class="btn btn-primary btn-sm"><i class="fas fa-search"></i></button>
-                    <select id="sortSelect" onchange="applySort()" class="form-control" style="padding:9px 12px;border-radius:50px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);font-size:0.85rem;min-width:140px;">
+                    <select id="sortSelect" onchange="applySort()" class="form-control" style="padding:9px 12px;border-radius:50px;border:2px solid #e5e7eb;background:var(--light-gray);font-size:0.85rem;min-width:140px;">
                         <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest</option>
                         <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low → High</option>
                         <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High → Low</option>
                     </select>
                 </div>
             </div>
-            <div class="shop-filters">
-                <div class="filter-row">
-                    <div class="filter-group">
-                        <label>Min Price (DZD)</label>
-                        <input type="number" id="minPrice" value="{{ min_price }}" placeholder="0" class="form-control" style="font-size:0.85rem;">
-                    </div>
-                    <div class="filter-group">
-                        <label>Max Price (DZD)</label>
-                        <input type="number" id="maxPrice" value="{{ max_price }}" placeholder="50000" class="form-control" style="font-size:0.85rem;">
-                    </div>
-                    <div class="filter-group" style="flex:0;min-width:auto;">
-                        <label style="visibility:hidden;">Apply</label>
-                        <button onclick="applyFilters()" class="btn btn-primary btn-sm" style="white-space:nowrap;">Apply Filters</button>
-                    </div>
-                </div>
+            <div class="filter-bar">
+                <label>Price Range:</label>
+                <input type="number" id="minPrice" value="{{ min_price }}" placeholder="Min" style="width:80px;padding:8px 10px;border-radius:8px;border:2px solid #e5e7eb;font-size:0.85rem;">
+                <span style="color:var(--text-light);">-</span>
+                <input type="number" id="maxPrice" value="{{ max_price }}" placeholder="Max" style="width:80px;padding:8px 10px;border-radius:8px;border:2px solid #e5e7eb;font-size:0.85rem;">
+                <button onclick="applyFilters()" class="btn btn-primary btn-sm">Apply</button>
+                {% if min_price or max_price %}<a href="?category={{ selected_category }}&sort={{ sort_by }}&q={{ search_query }}" class="btn btn-outline btn-sm">Clear</a>{% endif %}
             </div>
             <div class="product-grid">
                 {% for product in page_obj %}
-                <div class="product-card">
+                <div class="product-card" data-product-id="{{ product.id }}">
                     <div class="product-img-wrap">
                         {% if product.image %}
                         <img src="{{ product.image|media_url }}" alt="{{ product.name }}" loading="lazy">
@@ -368,19 +427,13 @@
                         <span class="product-img-icon"><i class="fas fa-box-open"></i></span>
                         {% endif %}
                         {% if product.is_new %}
-                        <span class="product-badge badge-new">New</span>
+                        <span class="card-badge badge-new">New</span>
                         {% endif %}
                         {% if product.stock == 0 %}
-                        <span class="product-stock-badge badge-danger">Out of Stock</span>
+                        <span class="stock-badge badge-danger">Out of Stock</span>
                         {% elif product.stock < 5 %}
-                        <span class="product-stock-badge badge-warning">Low Stock</span>
+                        <span class="stock-badge badge-warning">Low Stock</span>
                         {% endif %}
-                        <div class="quick-add-overlay">
-                            <a href="{% url 'product_detail' product.id %}" class="btn btn-outline btn-sm" style="color:white;border-color:white;">Quick View</a>
-                            <a href="{% url 'product_detail' product.id %}" class="btn btn-primary btn-sm" style="width:100%;" {% if product.stock < 1 %}disabled{% endif %}>
-                                {% if product.stock > 0 %}<i class="fas fa-bolt"></i> Buy Now{% else %}Sold Out{% endif %}
-                            </a>
-                        </div>
                     </div>
                     <div class="product-body">
                         <div class="product-category-tag">{{ product.category.name }}</div>
@@ -390,12 +443,7 @@
                             <span>Stock: {{ product.stock }}</span>
                             <span class="product-rating">★ {{ product.rating|floatformat:"1" }}</span>
                         </div>
-                        <div class="product-actions">
-                            <a href="{% url 'product_detail' product.id %}" class="btn btn-outline btn-sm">Details</a>
-                            <a href="{% url 'product_detail' product.id %}" class="btn btn-primary btn-sm" style="width:100%;" {% if product.stock < 1 %}disabled{% endif %}>
-                                {% if product.stock > 0 %}<i class="fas fa-bolt"></i> Buy Now{% else %}Sold Out{% endif %}
-                            </a>
-                        </div>
+                        <a href="{% url 'product_detail' product.id %}" class="btn btn-outline btn-sm quick-view-btn">View Details →</a>
                     </div>
                 </div>
                 {% empty %}
@@ -409,17 +457,17 @@
             {% if page_obj.paginator.num_pages > 1 %}
             <div class="pagination">
                 {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}&category={{ selected_category }}&sort={{ sort_by }}&q={{ search_query }}">&laquo; Prev</a>
+                <a href="?page={{ page_obj.previous_page_number }}&category={{ selected_category }}&sort={{ sort_by }}&q={{ search_query }}&min_price={{ min_price }}&max_price={{ max_price }}">&laquo; Prev</a>
                 {% endif %}
                 {% for num in page_obj.paginator.page_range %}
                 {% if page_obj.number == num %}
                 <span class="current">{{ num }}</span>
-                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <a href="?page={{ num }}&category={{ selected_category }}&sort={{ sort_by }}&q={{ search_query }}">{{ num }}</a>
+                {% elif num > page_obj.number|add:'-2' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}&category={{ selected_category }}&sort={{ sort_by }}&q={{ search_query }}&min_price={{ min_price }}&max_price={{ max_price }}">{{ num }}</a>
                 {% endif %}
                 {% endfor %}
                 {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}&category={{ selected_category }}&sort={{ sort_by }}&q={{ search_query }}">Next &raquo;</a>
+                <a href="?page={{ page_obj.next_page_number }}&category={{ selected_category }}&sort={{ sort_by }}&q={{ search_query }}&min_price={{ min_price }}&max_price={{ max_price }}">Next &raquo;</a>
                 {% endif %}
             </div>
             {% endif %}
@@ -433,10 +481,10 @@ function buildBaseUrl() {
     const sort = document.getElementById('sortSelect').value;
     const q = document.getElementById('searchInput').value;
     if (cat) url += 'category=' + cat + '&';
-    url += 'sort=' + sort + '&q=' + encodeURIComponent(q);
+    url += 'sort=' + sort;
     return url;
 }
-function applySearch() { location.href = buildBaseUrl(); }
+function applySearch() { location.href = buildBaseUrl() + '&q=' + encodeURIComponent(document.getElementById('searchInput').value); }
 function applySort() { location.href = buildBaseUrl(); }
 function applyFilters() {
     const base = buildBaseUrl();

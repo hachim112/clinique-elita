@@ -33,11 +33,6 @@
         <div class="stat-value">{{ page_obj.object_list|length }}</div>
         <div class="stat-label">Showing</div>
     </div>
-    <div class="stat-card success">
-        <div class="stat-icon">💰</div>
-        <div class="stat-value">{{ page_obj.paginator.count|default:"0" }}</div>
-        <div class="stat-label">Orders</div>
-    </div>
 </div>
 <div class="card card-p-0">
     <div class="card-header">
@@ -50,7 +45,7 @@
         <tbody>
             {% for order in page_obj %}
             <tr>
-                <td><strong style="color:var(--sky-blue);cursor:pointer;">#{{ order.order_id }}</strong></td>
+                <td><strong style="color:var(--sky-blue);">#{{ order.order_id }}</strong></td>
                 <td>
                     <div style="font-weight:600;">
                         {% if order.guest_name %}{{ order.guest_name }}
@@ -87,6 +82,7 @@
                 <td style="color:var(--text-light);font-size:0.85rem;">{{ order.created_at|date:"M d, Y H:i" }}</td>
                 <td>
                     <div class="actions-cell">
+                        <button type="button" class="btn btn-outline btn-sm btn-icon" onclick="showOrderDetails({{ order.id }})" title="View Details">👁️</button>
                         {% if order.status == 'pending' %}
                         <form method="post" style="display:inline;" onsubmit="return confirm('Confirm this order?')">
                             {% csrf_token %}
@@ -140,4 +136,40 @@
     {% endif %}
 </div>
 {% endif %}
+<div class="modal-overlay" id="orderDetailsModal">
+    <div class="card" style="max-width:600px;width:90%;max-height:80vh;overflow-y:auto;">
+        <div class="card-header">
+            <h3>Order Details</h3>
+            <button type="button" onclick="closeOrderDetails()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-light);">&times;</button>
+        </div>
+        <div class="card-body" id="order-details-content">
+            <div style="text-align:center;padding:2rem;">Loading...</div>
+        </div>
+    </div>
+</div>
+<script>
+function showOrderDetails(orderId) {
+    const modal = document.getElementById('orderDetailsModal');
+    const content = document.getElementById('order-details-content');
+    content.innerHTML = '<div style="text-align:center;padding:2rem;">Loading...</div>';
+    modal.classList.add('show');
+    
+    fetch(`/panel/orders/${orderId}/details/`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                content.innerHTML = data.html;
+            } else {
+                content.innerHTML = '<div style="color:var(--danger);padding:1rem;">Error loading order details</div>';
+            }
+        })
+        .catch(() => {
+            content.innerHTML = '<div style="color:var(--danger);padding:1rem;">Error loading order details</div>';
+        });
+}
+
+function closeOrderDetails() {
+    document.getElementById('orderDetailsModal').classList.remove('show');
+}
+</script>
 {% endblock %}

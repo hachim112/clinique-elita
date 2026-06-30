@@ -10,8 +10,12 @@
     padding: 2.5rem 0;
     align-items: start;
 }
+.product-image-section {
+    position: sticky;
+    top: 90px;
+}
 .product-main-img {
-    height: 420px;
+    height: 460px;
     background: linear-gradient(135deg, var(--light-gray), #e2e8f0);
     border-radius: var(--radius);
     display: flex;
@@ -30,14 +34,38 @@
     color: var(--sky-blue);
     opacity: 0.4;
 }
+.image-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    z-index: 2;
+}
+.info-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    z-index: 2;
+}
 .product-info h1 {
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
     color: var(--dark-blue);
 }
 .product-category-label {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 600;
     color: var(--sky-blue);
     text-transform: uppercase;
@@ -45,7 +73,7 @@
     margin-bottom: 0.75rem;
 }
 .product-price-large {
-    font-size: 2rem;
+    font-size: 2.2rem;
     font-weight: 700;
     color: var(--dark-blue);
     margin: 1rem 0;
@@ -66,61 +94,89 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 14px;
+    padding: 8px 16px;
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 600;
 }
 .stock-success { background: rgba(16,185,129,0.1); color: #059669; }
 .stock-danger { background: rgba(239,68,68,0.1); color: #dc2626; }
 .stock-warning { background: rgba(245,158,11,0.1); color: #d97706; }
-.quantity-selector {
-    display: flex;
-    align-items: center;
+.order-form {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    margin-top: 1.5rem;
+}
+.order-form h3 {
+    margin: 0 0 1rem;
+    font-size: 1.1rem;
+    color: var(--dark-blue);
+}
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 1rem;
-    margin: 1.5rem 0;
+    margin-bottom: 1rem;
 }
-.qty-btn {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: 2px solid #e5e7eb;
-    background: white;
-    cursor: pointer;
-    font-size: 1.2rem;
-    transition: var(--transition);
+.form-group {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    gap: 0.4rem;
 }
-.qty-btn:hover { background: var(--sky-blue); color: white; border-color: var(--sky-blue); }
-.qty-input {
-    width: 64px;
-    text-align: center;
-    padding: 10px;
+.form-group label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-dark);
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 10px 14px;
     border-radius: 10px;
     border: 2px solid #e5e7eb;
     background: var(--light-gray);
     color: var(--text-dark);
-    font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.9rem;
+    outline: none;
+    transition: var(--transition);
 }
-.product-actions-row {
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--sky-blue);
+    background: white;
+}
+.form-group-full {
+    grid-column: 1 / -1;
+}
+.actions-row {
     display: flex;
-    gap: 10px;
-    margin-top: 1.5rem;
+    gap: 12px;
+    margin-top: 0.5rem;
 }
-.product-actions-row .btn { flex: 1; justify-content: center; padding: 12px 20px; font-size: 0.9rem; }
+.actions-row .btn {
+    flex: 1;
+    justify-content: center;
+    padding: 12px 20px;
+    font-size: 0.9rem;
+}
 .related-section {
-    margin-top: 3rem;
-    padding-top: 2rem;
+    margin-top: 3.5rem;
+    padding-top: 2.5rem;
     border-top: 1px solid #f1f5f9;
+}
+.related-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--dark-blue);
+    margin-bottom: 1.25rem;
 }
 .related-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.25rem;
-    margin-top: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
 }
 .related-card {
     background: var(--white);
@@ -138,7 +194,7 @@
     box-shadow: var(--shadow-hover);
 }
 .related-img {
-    height: 160px;
+    height: 180px;
     background: linear-gradient(135deg, var(--light-gray), #e2e8f0);
     display: flex;
     align-items: center;
@@ -155,20 +211,16 @@
     color: var(--sky-blue);
     opacity: 0.4;
 }
-.related-body { padding: 1rem; flex: 1; display: flex; flex-direction: column; }
-.related-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem; }
-.related-price { font-weight: 700; color: var(--dark-blue); font-size: 0.95rem; }
-.related-rating { font-size: 0.8rem; color: #f59e0b; margin-top: 0.25rem; }
-.product-meta-row {
-    display: flex;
-    gap: 1.5rem;
-    align-items: center;
-    flex-wrap: wrap;
-    margin: 0.75rem 0;
-}
+.related-body { padding: 1rem 1.25rem; flex: 1; display: flex; flex-direction: column; }
+.related-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.25rem; color: var(--dark-blue); }
+.related-meta { font-size: 0.75rem; color: var(--text-light); margin-bottom: 0.4rem; }
+.related-price { font-weight: 700; color: var(--dark-blue); font-size: 1rem; margin-top: auto; }
+.related-rating { font-size: 0.8rem; color: #f59e0b; margin-top: 0.3rem; }
 @media (max-width: 768px) {
-    .product-detail { grid-template-columns: 1fr; gap: 1.5rem; }
-    .product-main-img { height: 280px; }
+    .product-detail { grid-template-columns: 1fr; gap: 2rem; }
+    .product-main-img { height: 320px; }
+    .form-row { grid-template-columns: 1fr; }
+    .actions-row { flex-direction: column; }
 }
 </style>
 <div class="container">
@@ -178,16 +230,23 @@
         <span style="color:var(--text-dark);font-weight:500;">{{ product.name }}</span>
     </div>
     <div class="product-detail">
-    <div class="product-main-img">
-        {% if product.image %}
-        <img src="{{ product.image|media_url }}" alt="{{ product.name }}">
-        {% else %}
-        <span class="product-main-icon"><i class="fas fa-box-open"></i></span>
-        {% endif %}
-        {% if product.is_new %}
-        <span class="product-badge badge-new" style="top:10px;left:10px;">New</span>
-        {% endif %}
-    </div>
+        <div class="product-image-section">
+            <div class="product-main-img">
+                {% if product.image %}
+                <img src="{{ product.image|media_url }}" alt="{{ product.name }}">
+                {% else %}
+                <span class="product-main-icon"><i class="fas fa-box-open"></i></span>
+                {% endif %}
+                {% if product.is_new %}
+                <span class="image-badge badge-new">New</span>
+                {% endif %}
+                {% if product.stock == 0 %}
+                <span class="info-badge badge-danger">Out of Stock</span>
+                {% elif product.stock < 5 %}
+                <span class="info-badge badge-warning">Low Stock</span>
+                {% endif %}
+            </div>
+        </div>
         <div class="product-info">
             <div class="product-category-label">{{ product.category.name }}</div>
             <h1>{{ product.name }}</h1>
@@ -203,8 +262,8 @@
                 <span class="rating-text">({{ product.rating|floatformat:"1" }})</span>
             </div>
             <p class="product-description">{{ product.description }}</p>
-            <div class="product-meta-row">
-                <span><strong>Availability:</strong></span>
+            <div style="margin:1.25rem 0;">
+                <strong>Availability:</strong>
                 {% if product.stock > 0 %}
                     {% if product.stock < 5 %}
                     <span class="stock-info stock-warning">⚠️ Only {{ product.stock }} left</span>
@@ -215,8 +274,8 @@
                 <span class="stock-info stock-danger">✕ Out of Stock</span>
                 {% endif %}
             </div>
-            <form method="post" action="{% url 'direct_buy' product.id %}" style="margin-top:1.25rem;">
-                {% csrf_token %}
+            <div class="order-form">
+                <h3><i class="fas fa-shopping-cart"></i> Place Your Order</h3>
                 {% if messages %}
                 {% for message in messages %}
                 <div class="alert alert-{{ message.tags }}" style="margin-bottom:1rem;padding:10px 14px;border-radius:8px;font-size:0.85rem;">
@@ -224,54 +283,64 @@
                 </div>
                 {% endfor %}
                 {% endif %}
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-                    <div class="form-group">
-                        <label style="font-weight:600;font-size:0.9rem;">First Name *</label>
-                        <input type="text" name="first_name" required class="form-control" placeholder="First name" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);" value="{{ data.first_name|default:'' }}">
+                <form method="post" action="{% url 'direct_buy' product.id %}">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>First Name *</label>
+                            <input type="text" name="first_name" required placeholder="First name" value="{{ data.first_name|default:'' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name *</label>
+                            <input type="text" name="last_name" required placeholder="Last name" value="{{ data.last_name|default:'' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone *</label>
+                            <input type="tel" name="phone" required placeholder="Phone number" value="{{ data.phone|default:'' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Wilaya *</label>
+                            <select name="wilaya" id="id_wilaya" required>
+                                <option value="">Select Wilaya</option>
+                                {% for code, name in wilaya_choices %}
+                                <option value="{{ name }}" data-code="{{ forloop.counter }}" {% if data.wilaya == name %}selected{% endif %}>{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Commune *</label>
+                            <select name="commune" id="id_commune" required>
+                                <option value="">Select Wilaya first</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Quantity *</label>
+                            <input type="number" name="quantity" value="{{ data.quantity|default:'1' }}" min="1" max="{{ product.stock }}" required {% if product.stock < 1 %}disabled{% endif %}>
+                        </div>
+                        <div class="form-group">
+                            <label>Delivery Type *</label>
+                            <select name="delivery_type" required>
+                                <option value="home" {% if data.delivery_type == 'home' or not data.delivery_type %}selected{% endif %}>🚚 Home Delivery</option>
+                                <option value="desk" {% if data.delivery_type == 'desk' %}selected{% endif %}>🏢 Desk Pickup</option>
+                            </select>
+                        </div>
+                        <div class="form-group form-group-full">
+                            <label>Address *</label>
+                            <textarea name="address" rows="2" required placeholder="Delivery address">{{ data.address|default:'' }}</textarea>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label style="font-weight:600;font-size:0.9rem;">Last Name *</label>
-                        <input type="text" name="last_name" required class="form-control" placeholder="Last name" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);" value="{{ data.last_name|default:'' }}">
+                    <div class="actions-row">
+                        <a href="{% url 'shop' %}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Back to Shop</a>
+                        <button type="submit" class="btn btn-primary" {% if product.stock < 1 %}disabled{% endif %}>
+                            <i class="fas fa-truck"></i> Place Order
+                        </button>
                     </div>
-                    <div class="form-group">
-                        <label style="font-weight:600;font-size:0.9rem;">Phone *</label>
-                        <input type="tel" name="phone" required class="form-control" placeholder="Phone number" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);" value="{{ data.phone|default:'' }}">
-                    </div>
-                    <div class="form-group">
-                        <label style="font-weight:600;font-size:0.9rem;">Wilaya *</label>
-                        <select name="wilaya" id="id_wilaya" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
-                            <option value="">Select Wilaya</option>
-                            {% for code, name in wilaya_choices %}
-                            <option value="{{ name }}" data-code="{{ forloop.counter }}" {% if data.wilaya == name %}selected{% endif %}>{{ name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label style="font-weight:600;font-size:0.9rem;">Commune *</label>
-                        <select name="commune" id="id_commune" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
-                            <option value="">Select Wilaya first</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label style="font-weight:600;font-size:0.9rem;">Quantity *</label>
-                        <input type="number" name="quantity" value="{{ data.quantity|default:'1' }}" min="1" max="{{ product.stock }}" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">
-                    </div>
-                    <div class="form-group" style="grid-column:1/-1;">
-                        <label style="font-weight:600;font-size:0.9rem;">Address *</label>
-                        <textarea name="address" rows="2" required class="form-control" placeholder="Delivery address" style="width:100%;padding:10px;border-radius:8px;border:2px solid #e5e7eb;background:var(--light-gray);color:var(--text-dark);">{{ data.address|default:'' }}</textarea>
-                    </div>
-                </div>
-                <div class="product-actions-row">
-                    <button type="submit" class="btn btn-primary" {% if product.stock < 1 %}disabled{% endif %} style="flex:2;">
-                        {% if product.stock > 0 %}<i class="fas fa-truck"></i> Place Order{% else %}Out of Stock{% endif %}
-                    </button>
-                    <a href="{% url 'shop' %}" class="btn btn-outline" style="flex:1;justify-content:center;">← Back</a>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
     <section class="related-section">
-        <h2 class="section-title" style="font-size:1.5rem;">You May Also Like</h2>
+        <h2 class="related-title">You May Also Like</h2>
         <div class="related-grid">
             {% for p in related %}
             <a href="{% url 'product_detail' p.id %}" class="related-card">
@@ -281,13 +350,10 @@
                     {% else %}
                     <span class="related-img-icon"><i class="fas fa-box-open"></i></span>
                     {% endif %}
-                    {% if p.is_new %}
-                    <span class="product-badge badge-new" style="top:10px;left:10px;font-size:0.65rem;">New</span>
-                    {% endif %}
                 </div>
                 <div class="related-body">
                     <div class="related-name">{{ p.name }}</div>
-                    <div style="font-size:0.75rem;color:var(--text-light);margin-bottom:0.25rem;">{{ p.category.name }}</div>
+                    <div class="related-meta">{{ p.category.name }}</div>
                     <div class="related-price">{{ p.price }} DZD</div>
                     <div class="related-rating">★ {{ p.rating|floatformat:"1" }}</div>
                 </div>
@@ -300,16 +366,8 @@
     </section>
 </div>
 <script>
-function changeQty(delta) {
-    const el = document.getElementById('qty');
-    let val = parseInt(el.value) + delta;
-    if (val < 1) val = 1;
-    if (val > {{ product.stock }}) val = {{ product.stock }};
-    el.value = val;
-}
-
-document.getElementById('id_wilaya').addEventListener('change', function() {
-    const wilayaSelect = this;
+function updateCommunes() {
+    const wilayaSelect = document.getElementById('id_wilaya');
     const communeSelect = document.getElementById('id_commune');
     const wilayaCode = wilayaSelect.options[wilayaSelect.selectedIndex].getAttribute('data-code');
     
@@ -332,9 +390,15 @@ document.getElementById('id_wilaya').addEventListener('change', function() {
                 communeSelect.appendChild(option);
             });
         })
-        .catch(error => {
+        .catch(() => {
             communeSelect.innerHTML = '<option value="">Error loading communes</option>';
         });
-});
+}
+
+document.getElementById('id_wilaya').addEventListener('change', updateCommunes);
+
+{% if data.wilaya %}
+document.addEventListener('DOMContentLoaded', updateCommunes);
+{% endif %}
 </script>
 {% endblock %}
